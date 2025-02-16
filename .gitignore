@@ -1,2 +1,3 @@
 audio_to_text/transcription.txt
 config_local.py
+__pycache__/
