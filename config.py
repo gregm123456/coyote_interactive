@@ -15,3 +15,6 @@ try:
 except ImportError:
     pass
 
+TRANSCRIBE_LOG_FILE = "./audio_to_text/transcription.txt"
+TRANSCRIBE_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
+
