@@ -6,7 +6,6 @@ This script continuously transcribes audio using the `whisper-stream` tool and l
 
 - Python 3.x
 - `whisper-stream` tool
-- WHISPER_MODEL environment variable set to the path of the Whisper model
 
 ## Installation
 
@@ -24,8 +23,6 @@ sudo cmake -B build -DWHISPER_SDL2=ON
 sudo cmake --build build --config Release
 sudo cp build/bin/* /usr/local/bin/
 sudo chmod +x /usr/local/bin/*
-echo "WHISPER_MODEL=/usr/share/whisper/models/ggml-tiny.en.bin" | sudo tee -a /etc/environment
-source /etc/environment
 ```
 
 ### Explanation of Commands
@@ -41,25 +38,24 @@ source /etc/environment
 9. `sudo cmake --build build --config Release`: Builds the project.
 10. `sudo cp build/bin/* /usr/local/bin/`: Copies the built binaries to `/usr/local/bin/`.
 11. `sudo chmod +x /usr/local/bin/*`: Makes the binaries executable.
-12. `echo "WHISPER_MODEL=/usr/share/whisper/models/ggml-tiny.en.bin" | sudo tee -a /etc/environment`: Sets the `WHISPER_MODEL` environment variable.
-13. `source /etc/environment`: Loads the new environment variable.
 
 ## Usage
 
 To run the script, use the following command:
 
 ```bash
-python transcribe_continuously.py [--log_file_path LOG_FILE_PATH]
+python transcribe_continuously.py --whisper_model /path/to/whisper/model [--log_file_path LOG_FILE_PATH]
 ```
 
 ### Arguments
 
+- `--whisper_model`: Required. Path to the Whisper model.
 - `--log_file_path`: Optional. Path to the log file where transcriptions will be saved. Defaults to `./transcription.txt`.
 
 ### Example
 
 ```bash
-python transcribe_continuously.py --log_file_path ./heard/log.txt
+python transcribe_continuously.py --whisper_model /usr/share/whisper/models/ggml-tiny.en.bin --log_file_path ./heard/log.txt
 ```
 
 This will start the transcription process and save the transcriptions to `./heard/log.txt`.
@@ -70,5 +66,5 @@ To stop the script gracefully, use `Ctrl+C`. The script will terminate the `whis
 
 ## Notes
 
-- Ensure the `WHISPER_MODEL` environment variable is set to the correct path of the Whisper model before running the script.
+- Provide the path to the Whisper model using the `--whisper_model` parameter.
 - The script will create the log file and its parent directory if they do not exist.

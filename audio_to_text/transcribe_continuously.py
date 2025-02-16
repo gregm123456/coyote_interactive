@@ -6,6 +6,7 @@ import argparse
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Transcribe audio continuously.')
 parser.add_argument('--log_file_path', type=str, default='./transcription.txt', help='Path to the log file')
+parser.add_argument('--whisper_model', type=str, required=True, help='Path to the whisper model')
 args = parser.parse_args()
 
 # Define the log file path
@@ -19,9 +20,7 @@ if not os.path.exists(log_file_path):
     open(log_file_path, 'w').close()
 
 # Define the stream command
-# Get the WHISPER_MODEL environment variable
-whisper_model = os.getenv('WHISPER_MODEL', '/usr/share/whisper/models/ggml-tiny.en.bin')
-
+whisper_model = args.whisper_model  # using command-line parameter instead of environment variable
 command = ['whisper-stream', '-m', whisper_model, '--step', '4500', '--length', '5000', '-c', '1', '-t', '2', '-ac', '512', '--keep', '85']
 
 # Start the stream process
