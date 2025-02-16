@@ -8,10 +8,10 @@ SWITCH_WAKE_SLEEP = GPIO_SWITCH_LAMP
 
 CONVERSATION_DATA_PATH = "conversation_data"
 
-# Expected local development secrets are defined in config_local.py.
-# To set up your local secrets, copy config_local.example.py to config_local.py and update the values.
+# Expected local development secrets are defined in config_secrets.py.
+# To set up your local secrets, copy config_secrets.example.py to config_secrets.py and update the values.
 try:
-    from config_local import *
+    from config_secrets import *
 except ImportError:
     pass
 

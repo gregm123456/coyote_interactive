@@ -1,4 +1,4 @@
 audio_to_text/transcription.txt
-config_local.py
+config_secrets.py
 __pycache__/
 conversation_data/
