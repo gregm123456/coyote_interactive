@@ -3,13 +3,13 @@ from conversation_manager import conversation_setup
 import threading
 import subprocess
 import time
-import sys  # added import
+import sys
 
 def main_business(stop_event):
     """Run the main business operations until a stop signal is received."""
-    print(f"Button to listen to person is set to: {config.BUTTON_LISTEN_TO_PERSON}")
-    print(f"Button to listen to television is set to: {config.BUTTON_LISTEN_TO_TELEVISION}")
-    print(f"Switch to wake/sleep is set to: {config.SWITCH_WAKE_SLEEP}")
+    button_listen_to_person = config.BUTTON_LISTEN_TO_PERSON
+    button_listen_to_television = config.BUTTON_LISTEN_TO_TELEVISION
+    switch_wake_sleep = config.SWITCH_WAKE_SLEEP
     print(f"API Key for local development is set to: {config.API_KEY}")
     
     # Ensure the conversation directory is set up.
