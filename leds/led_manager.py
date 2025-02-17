@@ -17,9 +17,9 @@ def led_worker(gpio, pattern, stop_event):
             time.sleep(0.5)
         elif pattern == "erratic":
             led.on()
-            time.sleep(random.uniform(0.01, 0.06))  # updated timing
+            time.sleep(random.uniform(0.01, 0.035))  # updated timing
             led.off()
-            time.sleep(random.uniform(0.05, 0.35))  # updated timing
+            time.sleep(random.uniform(0.01, 0.35))  # updated timing
         elif pattern == "breathing":
             # Faster & smoother breathing: Increase brightness from 0.1 to 1.0 in 101 steps
             for bri in [0.1 + (x / 100) * 0.9 for x in range(0, 101)]:
@@ -33,6 +33,10 @@ def led_worker(gpio, pattern, stop_event):
                 time.sleep(0.015)
                 if stop_event.is_set():
                     break
+        elif pattern == "constant":
+            # Constant mode: hold the LED at full brightness
+            led.on()  # full brightness (works for both LED and PWMLED)
+            time.sleep(0.1)
         else:
             time.sleep(0.5)
     # Ensure LED is turned off when stopping.
