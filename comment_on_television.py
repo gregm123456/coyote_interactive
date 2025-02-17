@@ -1,11 +1,16 @@
-from config import TRANSCRIBE_LOG_FILE, RECENT_TRANSCRIPT_LINES, TELEVISION_PROMPT_START, TELEVISION_PROMPT_END, TELEVISION_PROMPT_NO_TRANSCRIPT
-# Set local variables for the log file and transcript lines count
-transcript_file = TRANSCRIBE_LOG_FILE
-number_of_transcript_lines = RECENT_TRANSCRIPT_LINES
-# Assign configuration prompts to local variables
-television_prompt_start = TELEVISION_PROMPT_START
-television_prompt_end = TELEVISION_PROMPT_END
-television_prompt_no_transcript = TELEVISION_PROMPT_NO_TRANSCRIPT
+import os
+import json
+import config
+from llm_chat_completion import llm_chat_completion
+from speak_text import speak_text
+
+# Consolidated config assignments
+transcript_file = config.TRANSCRIBE_LOG_FILE
+number_of_transcript_lines = config.RECENT_TRANSCRIPT_LINES
+television_prompt_start = config.TELEVISION_PROMPT_START
+television_prompt_end = config.TELEVISION_PROMPT_END
+television_prompt_no_transcript = config.TELEVISION_PROMPT_NO_TRANSCRIPT
+conversation_file = os.path.join(config.CONVERSATION_DATA_PATH, config.CONVERSATION_FILE)
 
 def comment_on_television():
 
@@ -22,6 +27,24 @@ def comment_on_television():
         prompt = television_prompt_no_transcript
     else:
         prompt = television_prompt_start + recent_transcript + television_prompt_end
-
+    
     print("Prompt:", prompt)
+    
+    # Removed local assignment for conversation_file; using the global variable instead.
+    try:
+        with open(conversation_file, "r") as f:
+            conversation = json.load(f)
+    except Exception:
+        conversation = []
+    conversation.append({"role": "user", "content": prompt})
+    with open(conversation_file, "w") as f:
+        json.dump(conversation, f, indent=4)
+    
     print("Commenting on television...")
+
+    response = llm_chat_completion()
+    print("Response:", response)
+
+    speak_text(response)
+    
+    return

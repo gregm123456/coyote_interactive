@@ -6,8 +6,8 @@ import subprocess
 import time
 import sys
 
-def main_business(stop_event):
-    """Run the main business operations until a stop signal is received."""
+def coyote_alive(stop_event):
+    """Run the coyote alive operations until a stop signal is received."""
     button_listen_to_person = config.BUTTON_LISTEN_TO_PERSON
     button_listen_to_television = config.BUTTON_LISTEN_TO_TELEVISION
     switch_wake_sleep = config.SWITCH_WAKE_SLEEP
@@ -33,7 +33,7 @@ def main_business(stop_event):
                 talk_with_person.talk_with_person()
         if stop_event.wait(0.1):
             break
-    print("Main business stopped.")
+    print("Coyote alive operations stopped.")
 
 def start_transcriber():
     return subprocess.Popen([
@@ -45,9 +45,9 @@ def start_transcriber():
     ])
 
 def main():
-    """Start the transcriber process and main business thread, and manage graceful shutdown."""
+    """Start the transcriber process and coyote alive thread, and manage graceful shutdown."""
     stop_event = threading.Event()
-    business_thread = threading.Thread(target=main_business, args=(stop_event,))
+    business_thread = threading.Thread(target=coyote_alive, args=(stop_event,))
     business_thread.daemon = True
     business_thread.start()
     

@@ -7,11 +7,13 @@ def conversation_setup(config):
     # new local variables from config
     conversation_directory = config.CONVERSATION_DATA_PATH
     system_message_text = config.SYSTEM_MESSAGE_TEXT
+    conversation_file_name = config.CONVERSATION_FILE  # new local variable for conversation file name
 
     if not os.path.exists(conversation_directory):
         os.makedirs(conversation_directory)
 
-    conversation_file = os.path.join(conversation_directory, "starter_conversation.json")
+    # Use the local variable for the conversation file name.
+    conversation_file = os.path.join(conversation_directory, conversation_file_name)
     if not os.path.exists(conversation_file):
         # starter conversation with system entry
         starter_conversation = [
