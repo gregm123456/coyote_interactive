@@ -1,25 +1,20 @@
 ![Coyote Image](coyote.png)
 
-# coyote_interactive
+# Coyote Interactive
 
-## Introduction
+## Overview
+A modular system for interactive coyote behaviors and communications.
 
-## Installation
+## Modules
+- LEDs: Control of LED patterns.
+- Buttons: Handling of button events.
+- Audio to Text: Continuous transcription using whisper-stream.
+- Television Comments: AI-powered commentary on television content.
+- Conversation Data: Log storage for interactions.
+
+## Setup
+- Install dependencies (Python, gpiozero, whisper-stream, etc.).
+- Configure GPIO pins and other settings in config files.
 
 ## Usage
-
-### Main Application (coyote.py)
-- Initializes the interactive environment using configuration from config.py.
-- Integrates media commentary, button events, and audio transcription.
-
-### Button Manager (buttons/button_manager.py)
-- Handles customizable button press/release callbacks.
-- Monitors button state to trigger interactive actions.
-
-### Audio Transcription (audio_to_text/transcribe_continuously.py)
-- Continuously transcribes audio using the whisper-stream tool.
-- Logs transcriptions in real time with graceful interruption handling.
-
-## Contributing
-
-## License
+- `python coyote.py`
