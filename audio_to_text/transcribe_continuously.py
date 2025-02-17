@@ -56,3 +56,9 @@ except KeyboardInterrupt:
     print('Stopping...')
 finally:
     process.terminate()
+    # Check if the process exited with an error
+    if process.returncode != 0:
+        print(f'Error: whisper-stream exited with code {process.returncode}')
+        # Optionally, read and print the stderr
+        stderr_output = process.stderr.read()
+        print(f'Error output: {stderr_output}')
