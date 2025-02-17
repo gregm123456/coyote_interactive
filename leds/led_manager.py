@@ -17,20 +17,20 @@ def led_worker(gpio, pattern, stop_event):
             time.sleep(0.5)
         elif pattern == "erratic":
             led.on()
-            time.sleep(random.uniform(0.1, 0.7))
+            time.sleep(random.uniform(0.01, 0.06))  # updated timing
             led.off()
-            time.sleep(random.uniform(0.1, 0.7))
+            time.sleep(random.uniform(0.05, 0.35))  # updated timing
         elif pattern == "breathing":
-            # Increase brightness
-            for bri in [x/20.0 for x in range(0, 21)]:
+            # Faster & smoother breathing: Increase brightness from 0.1 to 1.0 in 101 steps
+            for bri in [0.1 + (x / 100) * 0.9 for x in range(0, 101)]:
                 led.value = bri
-                time.sleep(0.05)
+                time.sleep(0.002)
                 if stop_event.is_set():
                     break
-            # Decrease brightness
-            for bri in [x/20.0 for x in range(20, -1, -1)]:
+            # Faster & smoother breathing: Decrease brightness from 1.0 to 0.1 in 101 steps
+            for bri in [1.0 - (x/100)*0.9 for x in range(0, 101)]:
                 led.value = bri
-                time.sleep(0.05)
+                time.sleep(0.015)
                 if stop_event.is_set():
                     break
         else:
