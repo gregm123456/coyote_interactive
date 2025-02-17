@@ -35,3 +35,6 @@ RECENT_TRANSCRIPT_LINES = 5
 TELEVISION_PROMPT_START = "Here's the next thing you just heard about as you watch home shopping on television: ```"
 TELEVISION_PROMPT_END = "```Name the product you just heard about, and tell how it will help you catch Roadrunner. The product name is always a word or words that you heard on the commercial. (If you're not sure what the product is, just make a reasonable assumption and go with it.)"
 TELEVISION_PROMPT_NO_TRANSCRIPT = "You're ready to watch television, but you haven't heard about any products yet. If you watch, you'll surely hear about something soon."
+
+# LLM configuration
+LLM = "azure"
