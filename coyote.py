@@ -1,5 +1,6 @@
 import config
 from conversation_manager import conversation_setup
+from buttons.button_manager import ButtonManager
 import threading
 import subprocess
 import time
@@ -16,10 +17,21 @@ def main_business(stop_event):
     conversation_directory = conversation_setup(config)
     print(f"Conversation directory ensured at: {conversation_directory}")
     
+    # Instantiate ButtonManagers for each GPIO pin.
+    bm_person = ButtonManager(button_listen_to_person)
+    bm_television = ButtonManager(button_listen_to_television)
+    bm_switch = ButtonManager(switch_wake_sleep)
+    
     # Loop until the stop event is triggered, checking every second.
     while not stop_event.is_set():
-        print("Main business running...")
-        if stop_event.wait(1):
+        if bm_switch.get_initial_state():
+            if bm_television.get_initial_state():
+                import comment_on_television
+                comment_on_television.comment_on_television()
+            if bm_person.get_initial_state():
+                import talk_with_person
+                talk_with_person.talk_with_person()
+        if stop_event.wait(0.1):
             break
     print("Main business stopped.")
 
@@ -36,7 +48,7 @@ def main():
     """Start the transcriber process and main business thread, and manage graceful shutdown."""
     stop_event = threading.Event()
     business_thread = threading.Thread(target=main_business, args=(stop_event,))
-    business_thread.daemon = True  # make the thread a daemon
+    business_thread.daemon = True
     business_thread.start()
     
     max_restarts = 20
@@ -49,8 +61,8 @@ def main():
             if retcode is not None:
                 restart_count += 1
                 if restart_count > max_restarts:
-                    stop_event.set()  # signal main_business to stop
-                    business_thread.join(timeout=5)  # wait briefly for shutdown
+                    stop_event.set()
+                    business_thread.join(timeout=5)
                     sys.exit("Transcriber crashed too many times, stopping coyote.py")
                 print(f"Transcriber ended with code {retcode}, restarting...")
                 transcriber = start_transcriber()
