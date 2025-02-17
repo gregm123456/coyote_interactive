@@ -1,3 +1,5 @@
+![Coyote Image](coyote.png)
+
 # coyote_interactive
 
 ## Introduction
