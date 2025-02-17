@@ -17,4 +17,5 @@ except ImportError:
 
 TRANSCRIBE_LOG_FILE = "./audio_to_text/transcription.txt"
 TRANSCRIBE_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
-
+TRANSCRIBE_THREADS = "2"
+TRANSCRIBE_MIC_NUMBER = "0"   # new capture device ID parameter

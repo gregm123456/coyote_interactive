@@ -17,14 +17,15 @@ def main():
         transcriber = subprocess.Popen([
             "python", "/home/robot/coyote_interactive/audio_to_text/transcribe_continuously.py",
             "--log_file_path", config.TRANSCRIBE_LOG_FILE,
-            "--whisper_model", config.TRANSCRIBE_WHISPER_MODEL
+            "--whisper_model", config.TRANSCRIBE_WHISPER_MODEL,
+            "--threads", config.TRANSCRIBE_THREADS,
+            "--mic", config.TRANSCRIBE_MIC_NUMBER
         ])
         # add a temporary line here to just keep the script running and not exit
         input("Press Enter to exit...")
     finally:
         transcriber.terminate()
-        # Optionally, wait for the process to terminate:
-        # transcriber.wait()
+
 
 if __name__ == "__main__":
     main()
