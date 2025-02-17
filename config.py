@@ -14,6 +14,9 @@ BUTTON_LISTEN_TO_PERSON = GPIO_BUTTON_INTERCOM
 BUTTON_LISTEN_TO_TELEVISION = GPIO_BUTTON_PLUNGER
 SWITCH_WAKE_SLEEP = GPIO_SWITCH_LAMP
 
+GPIO_LED_DYNAMITE = 5
+GPIO_LED_INTERCOM = 8
+
 # Audio to text transcription settings
 TRANSCRIBE_LOG_FILE = "./audio_to_text/transcription.txt"
 TRANSCRIBE_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"

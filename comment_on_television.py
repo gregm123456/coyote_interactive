@@ -4,6 +4,10 @@ import config
 from llm_chat_completion import llm_chat_completion
 from speak_text import speak_text
 
+# Bring in LED configurations from config
+led_dynamite = config.GPIO_LED_DYNAMITE
+led_intercom = config.GPIO_LED_INTERCOM
+
 # Consolidated config assignments
 transcript_file = config.TRANSCRIBE_LOG_FILE
 number_of_transcript_lines = config.RECENT_TRANSCRIPT_LINES
@@ -42,7 +46,8 @@ def comment_on_television():
     
     print("Commenting on television...")
 
-    response = llm_chat_completion()
+    # Pass the conversation_file to llm_chat_completion
+    response = llm_chat_completion(conversation_file)
     print("Response:", response)
 
     speak_text(response)
