@@ -1,9 +1,11 @@
 # Module to comment on television content.
 import os
 import json
+import time
 import config
 from llm_chat_completion import llm_chat_completion
 from speak_text import speak_text
+from leds.led_manager import start_led, stop_led  # new import
 
 # Global configuration variables
 led_dynamite = config.GPIO_LED_DYNAMITE
@@ -53,18 +55,21 @@ def build_prompt_and_update_conversation():
     return
 
 def comment_on_television():
-
-    # Build prompt and update conversation history
-    build_prompt_and_update_conversation()
+    # Start led_dynamite flashing steadily during prompt build
+    led_thread = start_led(led_dynamite, "flashing")
+    prompt = build_prompt_and_update_conversation()
+    # wait five seconds
+    time.sleep(5)
+    stop_led(led_thread)
     
-    # Signal start of the TV comment process
-    print("Commenting on television...")
-    
-    # Get response from the LLM using the updated conversation file
+    # Start led_dynamite erratic flashing during llm processing
+    led_thread = start_led(led_dynamite, "erratic")
     response = llm_chat_completion(conversation_file)
+    stop_led(led_thread)
     
-    # Display and vocalize the response
-    print("Response:", response)
+    # Start led_intercom breathing pattern during speak_text
+    led_thread = start_led(led_intercom, "breathing")
     speak_text(response)
+    stop_led(led_thread)
     
     return
