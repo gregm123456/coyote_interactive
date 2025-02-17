@@ -3,6 +3,7 @@ from conversation_manager import conversation_setup
 import threading
 import subprocess
 import time
+import sys  # added import
 
 def main_business(stop_event):
     """Run the main business operations until a stop signal is received."""
@@ -22,33 +23,44 @@ def main_business(stop_event):
             break
     print("Main business stopped.")
 
-def main():
-    """Start the transcriber process and main business thread, and manage graceful shutdown."""
-    # Launch the transcriber subprocess.
-    transcriber = subprocess.Popen([
+def start_transcriber():
+    return subprocess.Popen([
         "python", "/home/robot/coyote_interactive/audio_to_text/transcribe_continuously.py",
         "--log_file_path", config.TRANSCRIBE_LOG_FILE,
         "--whisper_model", config.TRANSCRIBE_WHISPER_MODEL,
         "--threads", config.TRANSCRIBE_THREADS,
         "--mic", config.TRANSCRIBE_MIC_NUMBER
     ])
-    
-    # Start the main business operation in a separate thread.
+
+def main():
+    """Start the transcriber process and main business thread, and manage graceful shutdown."""
     stop_event = threading.Event()
     business_thread = threading.Thread(target=main_business, args=(stop_event,))
+    business_thread.daemon = True  # make the thread a daemon
     business_thread.start()
     
+    max_restarts = 20
+    restart_count = 0
+    transcriber = start_transcriber()
+    
     try:
-        # Wait for the business thread to complete.
-        business_thread.join()
+        while business_thread.is_alive():
+            retcode = transcriber.poll()
+            if retcode is not None:
+                restart_count += 1
+                if restart_count > max_restarts:
+                    stop_event.set()  # signal main_business to stop
+                    business_thread.join(timeout=5)  # wait briefly for shutdown
+                    sys.exit("Transcriber crashed too many times, stopping coyote.py")
+                print(f"Transcriber ended with code {retcode}, restarting...")
+                transcriber = start_transcriber()
+            time.sleep(1)
     except KeyboardInterrupt:
-        # On first Ctrl-C, signal the thread to stop and wait briefly for shutdown.
         print("KeyboardInterrupt received, shutting down...")
         stop_event.set()
         while business_thread.is_alive():
             business_thread.join(timeout=0.1)
     finally:
-        # Terminate the transcriber process on exit.
         transcriber.terminate()
         print("Transcriber process terminated.")
     
