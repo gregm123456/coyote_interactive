@@ -55,12 +55,8 @@ def build_prompt_and_update_conversation():
     return
 
 def comment_on_television():
-    # Start led_dynamite flashing steadily during prompt build
-    led_thread = start_led(led_dynamite, "flashing")
-    prompt = build_prompt_and_update_conversation()
-    # wait
-    time.sleep(5)
-    stop_led(led_thread)
+
+    build_prompt_and_update_conversation()
     
     # Start led_dynamite erratic flashing during llm processing
     led_thread = start_led(led_dynamite, "erratic")
