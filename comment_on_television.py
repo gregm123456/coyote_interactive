@@ -54,13 +54,27 @@ def build_prompt_and_update_conversation():
     
     return
 
+def clean_response(response):
+    sentence_endings = [".", "!", "?"]
+    last_ending_index = max(response.rfind(ending) for ending in sentence_endings)
+    if last_ending_index != -1:
+        response = response[:last_ending_index+1]
+
+    response = response.strip()
+    response = response.replace("*", "")
+    response = response.replace("‘", "").replace("’", "").replace("'", "")
+    response = response.replace('"', "")
+    # Escape the string for JSON
+    cleaned = json.dumps(response)
+    return cleaned
+
 def comment_on_television():
 
     build_prompt_and_update_conversation()
     
     # Start led_dynamite erratic flashing during llm processing
     led_thread = start_led(led_dynamite, "erratic")
-    response = llm_chat_completion(conversation_file)
+    response = clean_response(llm_chat_completion(conversation_file))
     stop_led(led_thread)
     
     # Start led_intercom breathing pattern during speak_text
