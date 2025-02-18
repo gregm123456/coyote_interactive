@@ -21,7 +21,11 @@ GPIO_LED_INTERCOM = 15
 TRANSCRIBE_LOG_FILE = "./audio_to_text/transcription.txt"
 TRANSCRIBE_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
 TRANSCRIBE_THREADS = "2"
-TRANSCRIBE_MIC_NUMBER = "0"   # new capture device ID parameter
+TRANSCRIBE_MIC_NUMBER = "0"
+
+PERSON_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
+PERSON_MIC_NUMBER = "1"
+PERSON_THREADS = "2"
 
 # Conversation configuration
 CONVERSATION_DATA_PATH = "conversation_data"
@@ -38,6 +42,7 @@ TELEVISION_PROMPT_NO_TRANSCRIPT = "You're ready to watch television, but you hav
 
 PERSON_PROMPT_START = "Here's what your friend just said to you as you watch home shopping on television: ```"
 PERSON_PROMPT_END = "``` Please respond to your friend. Be brief and succinct, and speak using the first person \"I...\""
+PERSON_PROMPT_NO_TRANSCRIPT = "Ask a question of your friend who is watching television with you. You can ask about the product they just heard about, or anything else you'd like to know."
 
 # LLM configuration
 LLM = "azure"

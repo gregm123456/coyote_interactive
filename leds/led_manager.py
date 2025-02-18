@@ -16,9 +16,9 @@ def led_worker(gpio, pattern, stop_event):
         if pattern == "flashing":
             # Flashing: LED on then off
             led.on()
-            time.sleep(0.5)
+            time.sleep(0.3)
             led.off()
-            time.sleep(0.5)
+            time.sleep(0.1)
         elif pattern == "erratic":
             # Erratic: LED on for random short time then off for random time
             led.on()

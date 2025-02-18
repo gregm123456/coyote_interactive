@@ -6,18 +6,44 @@ from speak_text import speak_text
 from leds.led_manager import start_led, stop_led
 
 # Global configuration variables
-led_dynamite = config.GPIO_LED_DYNAMITE
 led_intercom = config.GPIO_LED_INTERCOM
 transcript_file = config.TRANSCRIBE_LOG_FILE
-number_of_transcript_lines = config.RECENT_TRANSCRIPT_LINES
-television_prompt_start = config.TELEVISION_PROMPT_START
-television_prompt_end = config.TELEVISION_PROMPT_END
-television_prompt_no_transcript = config.TELEVISION_PROMPT_NO_TRANSCRIPT
+person_prompt_start = config.PERSON_PROMPT_START
+person_prompt_end = config.PERSON_PROMPT_END
+person_prompt_no_transcript = config.PERSON_PROMPT_NO_TRANSCRIPT
 conversation_file = os.path.join(config.CONVERSATION_DATA_PATH, config.CONVERSATION_FILE)
+whisper_model = config.PERSON_WHISPER_MODEL
+threads = config.PERSON_THREADS
+mic = config.PERSON_MIC_NUMBER
+conversation_file = os.path.join(config.CONVERSATION_DATA_PATH, config.CONVERSATION_FILE)
+whisper_model = config.PERSON_WHISPER_MODEL
+threads = config.PERSON_THREADS
+mic = config.PERSON_MIC_NUMBER
 
 
-def build_prompt_and_update_conversation():
-    # This custom code will be written later.
+def build_prompt_and_update_conversation(person_comment):
+    # Use person prompt lines instead of television prompt lines
+    if not person_comment:
+        prompt = person_prompt_no_transcript
+    else:
+        prompt = person_prompt_start + person_comment + person_prompt_end
+    
+    # Display the prompt
+    print("Prompt:", prompt)
+    # Load existing conversation from JSON file
+    try:
+        with open(conversation_file, "r") as f:
+            conversation = json.load(f)
+    except Exception:
+        conversation = []
+    
+    # Append new user message to the conversation
+    conversation.append({"role": "user", "content": prompt})
+    
+    # Write updated conversation back to file
+    with open(conversation_file, "w") as f:
+        json.dump(conversation, f, indent=4)
+
     return
 
 def clean_response(response):
@@ -28,7 +54,7 @@ def clean_response(response):
 
     response = response.strip()
     response = response.replace("*", "")
-    response = response.replace("‘", "").replace("’", "").replace("'", "")
+    response = response.replace("‘", "").replace("'", "")
     response = response.replace('"', "")
     # Escape the string for JSON
     cleaned = json.dumps(response)
@@ -59,22 +85,23 @@ def capture_intercom_speech(bm=None):
     bm.register_release_callback(on_release)
 
     command = [
-        '/usr/local/bin/stream',
-        '-m', '/home/robot/whisper.cpp/models/ggml-tiny.en.bin',
-        '--step', '4000',
-        '--length', '8000',
-        '-c', '1',
-        '-t', '1',
+        'whisper-stream',
+        '-m', whisper_model,
+        '--step', '4500',
+        '--length', '5000',
+        '-c', mic,
+        '-t', threads,
         '-ac', '512',
+        '--keep', '85',
         '-f', 'person_questions.txt'
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     
-    initial_duration = 12
+    initial_duration = 5
     max_duration = 30
     time.sleep(initial_duration)
     if bm.get_initial_state():
-        while recording and (time.time() - start_time < max_duration):
+        while recording and (time.time() - start_time < max_duration +6):
             time.sleep(0.1)
 
     process.terminate()
@@ -100,7 +127,7 @@ def talk_with_person(bm=None):
 
     build_prompt_and_update_conversation(person_comment)
 
-    # Start led_dynamite erratic flashing during llm processing
+    # Start led_dynamite steady flashing during llm processing
     led_thread = start_led(led_intercom, "flashing")
     response = clean_response(llm_chat_completion(conversation_file))
     stop_led(led_thread)

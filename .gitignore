@@ -20,3 +20,4 @@ venv/
 # Custom/Generated Data Files
 audio_to_text/transcription.txt
 conversation_data/
+person_questions.txt
