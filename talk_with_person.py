@@ -23,6 +23,13 @@ mic = config.PERSON_MIC_NUMBER
 
 def build_prompt_and_update_conversation(person_comment):
     # Use person prompt lines instead of television prompt lines
+    # If person_comment contains any occurrences of "[ Silence ]" then remove them
+    if "[ Silence ]" in person_comment:
+        person_comment = person_comment.replace("[ Silence ]", "").strip()
+    # if person_comment contains no a-z or A-Z, then set it to None
+    if not any(char.isalpha() for char in person_comment):
+        person_comment = None
+    # Decide on the prompt content based on transcript availability
     if not person_comment:
         prompt = person_prompt_no_transcript
     else:
@@ -101,8 +108,11 @@ def capture_intercom_speech(bm=None):
     max_duration = 30
     time.sleep(initial_duration)
     if bm.get_initial_state():
-        while recording and (time.time() - start_time < max_duration +6):
+        while recording and (time.time() - start_time < max_duration):
             time.sleep(0.1)
+            if not bm.get_initial_state():
+                time.sleep(3)
+                break
 
     process.terminate()
     try:
@@ -116,7 +126,7 @@ def capture_intercom_speech(bm=None):
     # If bm was created locally, there's no extra cleanup needed.
     with open("person_questions.txt", "r") as f:
         captured_speech = f.read()
-    
+    print("Captured speech:", captured_speech)
     return captured_speech
 
 def talk_with_person(bm=None):
