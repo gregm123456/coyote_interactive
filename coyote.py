@@ -29,7 +29,7 @@ def coyote_alive(stop_event):
                 comment_on_television.comment_on_television()
             if bm_person.get_initial_state():
                 import talk_with_person
-                talk_with_person.talk_with_person()
+                talk_with_person.talk_with_person(bm_person)
         if stop_event.wait(0.1):
             break
     print("Coyote alive operations stopped.")
