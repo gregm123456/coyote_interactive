@@ -3,6 +3,7 @@ import os
 import json
 import time
 import config
+import re  # added re import
 from llm_chat_completion import llm_chat_completion
 from speak_text import speak_text
 from leds.led_manager import start_led, stop_led  # new import
@@ -80,6 +81,17 @@ def comment_on_television():
     # Start led_intercom breathing pattern during speak_text
     led_thread = start_led(led_intercom, "breathing")
     speak_text(response)
+    
+    # Append assistant response to conversation JSON file
+    try:
+        with open(conversation_file, "r") as f:
+            conversation = json.load(f)
+    except Exception:
+        conversation = []
+    conversation.append({"role": "assistant", "content": response})
+    with open(conversation_file, "w") as f:
+        json.dump(conversation, f, indent=4)
+    
     stop_led(led_thread)
     
     return

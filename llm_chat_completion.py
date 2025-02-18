@@ -1,9 +1,9 @@
 import sys
+sys.stdout.reconfigure(encoding='utf-8')
 import time
 import config
 from openai import AzureOpenAI
 import json
-import re  # added re import
 
 
 def chat_completion_azure(conversation_file):
