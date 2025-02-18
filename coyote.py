@@ -11,7 +11,6 @@ def coyote_alive(stop_event):
     button_listen_to_person = config.BUTTON_LISTEN_TO_PERSON
     button_listen_to_television = config.BUTTON_LISTEN_TO_TELEVISION
     switch_wake_sleep = config.SWITCH_WAKE_SLEEP
-    print(f"API Key for local development is set to: {config.API_KEY}")
     
     # Ensure the conversation directory is set up.
     conversation_directory = conversation_setup(config)

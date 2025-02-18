@@ -1,5 +1,22 @@
-audio_to_text/transcription.txt
+# Logs and Database Files
+*.log
+*.sqlite3
+
+# Environment and Secret Files
+.env
 config_secrets.py
+
+# Python Cache Directories
 **/__pycache__/
 buttons/__pycache__/
+
+# Virtual Environment
+venv/
+
+# IDE and OS-specific Files
+.vscode/
+.DS_Store
+
+# Custom/Generated Data Files
+audio_to_text/transcription.txt
 conversation_data/
