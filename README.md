@@ -5,12 +5,13 @@
 ## Overview
 A modular system for interactive coyote behaviors and communications.
 
-## Modules
+## Features
 - LEDs: Control of LED patterns.
 - Buttons: Handling of button events.
 - Audio to Text: Continuous transcription using whisper-stream.
 - Television Comments: AI-powered commentary on television content.
 - Conversation Data: Log storage for interactions.
+- Talk with Person: Captures intercom speech and manages the conversation flow with AI.
 
 ## Setup
 - Install dependencies (Python, gpiozero, whisper-stream, etc.).

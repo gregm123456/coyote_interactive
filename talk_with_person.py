@@ -111,7 +111,7 @@ def capture_intercom_speech(bm=None):
         while recording and (time.time() - start_time < max_duration):
             time.sleep(0.1)
             if not bm.get_initial_state():
-                time.sleep(3)
+                time.sleep(1)
                 break
 
     process.terminate()
