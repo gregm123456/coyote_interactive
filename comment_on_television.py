@@ -56,6 +56,7 @@ def build_prompt_and_update_conversation():
     return
 
 def clean_response(response):
+
     sentence_endings = [".", "!", "?"]
     last_ending_index = max(response.rfind(ending) for ending in sentence_endings)
     if last_ending_index != -1:
@@ -65,7 +66,8 @@ def clean_response(response):
     response = response.replace("*", "")
     response = response.replace("‘", "").replace("’", "").replace("'", "")
     response = response.replace('"', "")
-    # Escape the string for JSON
+    # replace all `\n` (with any number of escaped backslashes in front of it, like `\\\\n` '\\\\\\n``) with a single space
+    response = re.sub(r'\\+n', ' ', response)
     cleaned = json.dumps(response)
     return cleaned
 
@@ -76,6 +78,9 @@ def comment_on_television():
     # Start led_dynamite erratic flashing during llm processing
     led_thread = start_led(led_dynamite, "erratic")
     response = clean_response(llm_chat_completion(conversation_file))
+    # Retry once if response is null
+    if not response:
+        response = clean_response(llm_chat_completion(conversation_file))
     stop_led(led_thread)
     
     # Start led_intercom breathing pattern during speak_text

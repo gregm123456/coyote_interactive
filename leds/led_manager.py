@@ -16,9 +16,9 @@ def led_worker(gpio, pattern, stop_event):
         if pattern == "flashing":
             # Flashing: LED on then off
             led.on()
-            time.sleep(0.3)
+            time.sleep(0.05)
             led.off()
-            time.sleep(0.1)
+            time.sleep(0.17)
         elif pattern == "erratic":
             # Erratic: LED on for random short time then off for random time
             led.on()
@@ -26,16 +26,20 @@ def led_worker(gpio, pattern, stop_event):
             led.off()
             time.sleep(random.uniform(0.01, 0.35))
         elif pattern == "breathing":
+            inc_duration = 0.1
+            dec_duration = 0.8
             # Breathing: Increase brightness gradually
-            for bri in [0.1 + (x / 100) * 0.9 for x in range(0, 101)]:
+            steps = int(inc_duration / 0.001)
+            for bri in [x / steps for x in range(steps + 1)]:
                 led.value = bri
-                time.sleep(0.002)
+                time.sleep(0.001)
                 if stop_event.is_set():
                     break
             # Breathing: Decrease brightness gradually
-            for bri in [1.0 - (x / 100) * 0.9 for x in range(0, 101)]:
+            steps = int(dec_duration / 0.001)
+            for bri in [1.0 - (x / steps) for x in range(steps + 1)]:
                 led.value = bri
-                time.sleep(0.015)
+                time.sleep(0.001)
                 if stop_event.is_set():
                     break
         elif pattern == "constant":
@@ -49,7 +53,7 @@ def led_worker(gpio, pattern, stop_event):
     led.off()
 
 # Start a thread to run the LED worker
-def start_led(gpio, pattern):
+def start_led(gpio, pattern, inc_duration=1.0, dec_duration=1.0):
     stop_event = threading.Event()
     t = threading.Thread(target=led_worker, args=(gpio, pattern, stop_event))
     t.daemon = True

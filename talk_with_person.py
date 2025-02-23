@@ -14,7 +14,6 @@ person_prompt_no_transcript = config.PERSON_PROMPT_NO_TRANSCRIPT
 conversation_file = os.path.join(config.CONVERSATION_DATA_PATH, config.CONVERSATION_FILE)
 whisper_model = config.PERSON_WHISPER_MODEL
 threads = config.PERSON_THREADS
-mic = config.PERSON_MIC_NUMBER
 conversation_file = os.path.join(config.CONVERSATION_DATA_PATH, config.CONVERSATION_FILE)
 whisper_model = config.PERSON_WHISPER_MODEL
 threads = config.PERSON_THREADS

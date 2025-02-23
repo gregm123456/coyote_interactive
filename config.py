@@ -21,10 +21,10 @@ GPIO_LED_INTERCOM = 15
 TRANSCRIBE_LOG_FILE = "./audio_to_text/transcription.txt"
 TRANSCRIBE_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
 TRANSCRIBE_THREADS = "2"
-TRANSCRIBE_MIC_NUMBER = "0"
+TRANSCRIBE_MIC_NUMBER = "1"
 
 PERSON_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
-PERSON_MIC_NUMBER = "1"
+PERSON_MIC_NUMBER = "0"
 PERSON_THREADS = "2"
 
 # Conversation configuration
@@ -45,4 +45,5 @@ PERSON_PROMPT_END = "``` Please respond to your friend. Be brief and succinct, a
 PERSON_PROMPT_NO_TRANSCRIPT = "Ask a question of your friend who is watching television with you. You can ask about the product they just heard about, or anything else you'd like to know."
 
 # LLM configuration
+# azure or ollama
 LLM = "azure"
