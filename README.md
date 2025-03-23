@@ -19,3 +19,5 @@ A modular system for interactive coyote behaviors and communications.
 
 ## Usage
 - `python coyote.py`
+
+[![Video Title](https://img.youtube.com/vi/pncuq-U_tuU/0.jpg)](https://www.youtube.com/watch?v=pncuq-U_tuU)
