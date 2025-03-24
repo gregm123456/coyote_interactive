@@ -20,4 +20,8 @@ A modular system for interactive coyote behaviors and communications.
 ## Usage
 - `python coyote.py`
 
-[![Video Title](https://img.youtube.com/vi/pncuq-U_tuU/0.jpg)](https://www.youtube.com/watch?v=pncuq-U_tuU)
+## Demonstration Video
+
+[![Watch on YouTube](https://img.shields.io/badge/Watch%20on-YouTube-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=pncuq-U_tuU)  
+[![Video Thumbnail](https://img.youtube.com/vi/pncuq-U_tuU/0.jpg)](https://www.youtube.com/watch?v=pncuq-U_tuU)
+
