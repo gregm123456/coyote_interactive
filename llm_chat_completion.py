@@ -1,9 +1,10 @@
 import sys
-sys.stdout.reconfigure(encoding='utf-8')
 import config
 from openai import AzureOpenAI
 import json
 import requests
+
+sys.stdout.reconfigure(encoding='utf-8')
 
 
 def chat_completion_azure(conversation_file):
@@ -15,7 +16,7 @@ def chat_completion_azure(conversation_file):
         azure_endpoint=config.AZURE_OPENAI_GPT4_ENDPOINT,
         api_key=config.AZURE_OPENAI_GPT4_KEY,
         api_version="2024-02-15-preview"
-        )
+    )
 
     completion = client.chat.completions.create(
         model=config.AZURE_MODEL,
@@ -26,7 +27,7 @@ def chat_completion_azure(conversation_file):
         frequency_penalty=0,
         presence_penalty=0,
         stop=None
-        )
+    )
 
     response = completion.choices[0].message.content
     print("\n")
