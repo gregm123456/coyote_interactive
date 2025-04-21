@@ -36,6 +36,7 @@ def chat_completion_azure(conversation_file):
 
     return response
 
+
 def chat_completion_ollama(conversation_file):
     # Load conversation messages from file
     with open(conversation_file, "r") as f:
@@ -68,6 +69,7 @@ def chat_completion_ollama(conversation_file):
     print("\n")
 
     return response
+
 
 def llm_chat_completion(conversation_file):
     if config.LLM == "azure":

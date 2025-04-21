@@ -2,6 +2,7 @@ import subprocess
 import time
 import re
 
+
 def speak_text(text):
     # Remove encoded Unicode sequences like "\uXXXX"
     text = re.sub(r'\\u[0-9a-fA-F]{4}', '', text)

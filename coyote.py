@@ -6,6 +6,7 @@ import subprocess
 import time
 import sys
 
+
 def coyote_alive(stop_event):
     """Run the coyote alive operations until a stop signal is received."""
     button_listen_to_person = config.BUTTON_LISTEN_TO_PERSON
@@ -34,6 +35,7 @@ def coyote_alive(stop_event):
             break
     print("Coyote alive operations stopped.")
 
+
 def start_transcriber():
     return subprocess.Popen([
         "python", "/home/robot/coyote_interactive/audio_to_text/transcribe_continuously.py",
@@ -42,6 +44,7 @@ def start_transcriber():
         "--threads", config.TRANSCRIBE_THREADS,
         "--mic", config.TRANSCRIBE_MIC_NUMBER
     ])
+
 
 def main():
     """Start the transcriber process and coyote alive thread, and manage graceful shutdown."""
@@ -76,6 +79,7 @@ def main():
         print("Transcriber process terminated.")
 
     print("Doing more stuff...")
+
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,10 @@
 import json
 import sys
 
+
 def escape_backticks(content):
     return content.replace("```", "\\`\\`\\`")
+
 
 def convert_conversation_to_md(conversation):
     md_content = []
@@ -17,6 +19,7 @@ def convert_conversation_to_md(conversation):
             md_content.append(f"**Assistant:**\n\n{content}\n")
     return "\n".join(md_content)
 
+
 def main(input_file, output_file):
     with open(input_file, 'r') as f:
         conversation = json.load(f)
@@ -25,6 +28,7 @@ def main(input_file, output_file):
 
     with open(output_file, 'w') as f:
         f.write(md_content)
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

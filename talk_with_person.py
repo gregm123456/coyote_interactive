@@ -52,6 +52,7 @@ def build_prompt_and_update_conversation(person_comment):
 
     return
 
+
 def clean_response(response):
     sentence_endings = [".", "!", "?"]
     last_ending_index = max(response.rfind(ending) for ending in sentence_endings)
@@ -65,6 +66,7 @@ def clean_response(response):
     # Escape the string for JSON
     cleaned = json.dumps(response)
     return cleaned
+
 
 def capture_intercom_speech(bm=None):
     import subprocess, time
@@ -127,6 +129,7 @@ def capture_intercom_speech(bm=None):
         captured_speech = f.read()
     print("Captured speech:", captured_speech)
     return captured_speech
+
 
 def talk_with_person(bm=None):
 

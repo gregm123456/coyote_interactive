@@ -18,6 +18,7 @@ television_prompt_end = config.TELEVISION_PROMPT_END
 television_prompt_no_transcript = config.TELEVISION_PROMPT_NO_TRANSCRIPT
 conversation_file = os.path.join(config.CONVERSATION_DATA_PATH, config.CONVERSATION_FILE)
 
+
 def build_prompt_and_update_conversation():
 
     # Attempt to read transcript file
@@ -55,6 +56,7 @@ def build_prompt_and_update_conversation():
 
     return
 
+
 def clean_response(response):
     sentence_endings = [".", "!", "?", "\n"]
     if response is None:
@@ -72,6 +74,7 @@ def clean_response(response):
     response = re.sub(r'\\+n', ' ', response)
     cleaned = json.dumps(response)
     return cleaned
+
 
 def comment_on_television():
     build_prompt_and_update_conversation()

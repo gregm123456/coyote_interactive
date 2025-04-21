@@ -3,6 +3,7 @@ __all__ = ['conversation_setup']
 import os
 import json
 
+
 def conversation_setup(config):
     # new local variables from config
     conversation_directory = config.CONVERSATION_DATA_PATH

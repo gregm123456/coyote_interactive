@@ -4,6 +4,7 @@ import threading
 import time
 import random
 
+
 # Worker function handling LED patterns
 def led_worker(gpio, pattern, stop_event):
     # Choose LED type: use PWMLED for breathing, standard LED otherwise
@@ -52,6 +53,7 @@ def led_worker(gpio, pattern, stop_event):
     # Ensure LED is off after exiting the loop
     led.off()
 
+
 # Start a thread to run the LED worker
 def start_led(gpio, pattern, inc_duration=1.0, dec_duration=1.0):
     stop_event = threading.Event()
@@ -59,6 +61,7 @@ def start_led(gpio, pattern, inc_duration=1.0, dec_duration=1.0):
     t.daemon = True
     t.start()
     return (t, stop_event)
+
 
 # Stop the LED thread gracefully
 def stop_led(led_thread):

@@ -1,6 +1,7 @@
 from gpiozero import Button
 from threading import Lock
 
+
 class ButtonManager:
     def __init__(self, pin):
         self.button = Button(pin, pull_up=False, bounce_time=0.05)
