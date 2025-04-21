@@ -13,8 +13,8 @@ def chat_completion_azure(conversation_file):
         messages = json.load(f)
 
     client = AzureOpenAI(
-        azure_endpoint=config.AZURE_OPENAI_GPT4_ENDPOINT, 
-        api_key=config.AZURE_OPENAI_GPT4_KEY,  
+        azure_endpoint=config.AZURE_OPENAI_GPT4_ENDPOINT,
+        api_key=config.AZURE_OPENAI_GPT4_KEY,
         api_version="2024-02-15-preview"
         )
 
@@ -33,7 +33,7 @@ def chat_completion_azure(conversation_file):
     print("\n")
     print(response)
     print("\n")
-    
+
     return response
 
 def chat_completion_ollama(conversation_file):
@@ -61,12 +61,12 @@ def chat_completion_ollama(conversation_file):
     llm_response = requests.post(config.OLLAMA_ENDPOINT, json=payload)
     llm_response_decoded = llm_response.content.decode()
     llm_response_json = json.loads(llm_response_decoded)
-    
+
     response = llm_response_json['message']['content']
     print("\n")
     print(response)
     print("\n")
-    
+
     return response
 
 def llm_chat_completion(conversation_file):

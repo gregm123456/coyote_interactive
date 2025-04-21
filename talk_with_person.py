@@ -33,7 +33,7 @@ def build_prompt_and_update_conversation(person_comment):
         prompt = person_prompt_no_transcript
     else:
         prompt = person_prompt_start + person_comment + person_prompt_end
-    
+
     # Display the prompt
     print("Prompt:", prompt)
     # Load existing conversation from JSON file
@@ -42,10 +42,10 @@ def build_prompt_and_update_conversation(person_comment):
             conversation = json.load(f)
     except Exception:
         conversation = []
-    
+
     # Append new user message to the conversation
     conversation.append({"role": "user", "content": prompt})
-    
+
     # Write updated conversation back to file
     with open(conversation_file, "w") as f:
         json.dump(conversation, f, indent=4)
@@ -75,7 +75,7 @@ def capture_intercom_speech(bm=None):
         local_bm = True
     else:
         local_bm = False
-    
+
     recording = True
     start_time = time.time()
 
@@ -102,7 +102,7 @@ def capture_intercom_speech(bm=None):
         '-f', 'person_questions.txt'
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    
+
     initial_duration = 5
     max_duration = 30
     time.sleep(initial_duration)
@@ -129,7 +129,7 @@ def capture_intercom_speech(bm=None):
     return captured_speech
 
 def talk_with_person(bm=None):
-    
+
     led_thread = start_led(led_intercom, "constant")
     person_comment = capture_intercom_speech(bm)
     stop_led(led_thread)
@@ -140,11 +140,11 @@ def talk_with_person(bm=None):
     led_thread = start_led(led_intercom, "flashing")
     response = clean_response(llm_chat_completion(conversation_file))
     stop_led(led_thread)
-    
+
     # Start led_intercom breathing pattern during speak_text
     led_thread = start_led(led_intercom, "breathing")
     speak_text(response)
-    
+
     # Append assistant response to conversation JSON file
     try:
         with open(conversation_file, "r") as f:
@@ -154,9 +154,9 @@ def talk_with_person(bm=None):
     conversation.append({"role": "assistant", "content": response})
     with open(conversation_file, "w") as f:
         json.dump(conversation, f, indent=4)
-    
+
     stop_led(led_thread)
-    
+
     return
 
 

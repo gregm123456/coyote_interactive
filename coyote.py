@@ -11,16 +11,16 @@ def coyote_alive(stop_event):
     button_listen_to_person = config.BUTTON_LISTEN_TO_PERSON
     button_listen_to_television = config.BUTTON_LISTEN_TO_TELEVISION
     switch_wake_sleep = config.SWITCH_WAKE_SLEEP
-    
+
     # Ensure the conversation directory is set up.
     conversation_directory = conversation_setup(config)
     print(f"Conversation directory ensured at: {conversation_directory}")
-    
+
     # Instantiate ButtonManagers for each GPIO pin.
     bm_person = ButtonManager(button_listen_to_person)
     bm_television = ButtonManager(button_listen_to_television)
     bm_switch = ButtonManager(switch_wake_sleep)
-    
+
     # Loop until the stop event is triggered, checking every second.
     while not stop_event.is_set():
         if bm_switch.get_initial_state():
@@ -49,11 +49,11 @@ def main():
     business_thread = threading.Thread(target=coyote_alive, args=(stop_event,))
     business_thread.daemon = True
     business_thread.start()
-    
+
     max_restarts = 20
     restart_count = 0
     transcriber = start_transcriber()
-    
+
     try:
         while business_thread.is_alive():
             retcode = transcriber.poll()
@@ -74,7 +74,7 @@ def main():
     finally:
         transcriber.terminate()
         print("Transcriber process terminated.")
-    
+
     print("Doing more stuff...")
 
 if __name__ == "__main__":

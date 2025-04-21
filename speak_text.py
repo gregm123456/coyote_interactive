@@ -9,7 +9,7 @@ def speak_text(text):
     safe_text = re.sub(r'[*"(){}\[\];|&`]', "", text)
     # replace `\n` with a space
     safe_text = re.sub(r'\\+n', ' ', safe_text)
-    
+
     print("Speaking:", safe_text)
     command = (
         f"echo {safe_text} | "
@@ -17,6 +17,6 @@ def speak_text(text):
         "sox -t raw -r 22050 -e signed -b 16 -c 1 - -t raw - pitch -200 vol 0.98 | "
         "aplay -r 22050 -f S16_LE -t raw"
     )
-    
+
     subprocess.run(command, shell=True)
     print("Finished speaking:", safe_text)

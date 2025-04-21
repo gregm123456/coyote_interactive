@@ -26,13 +26,13 @@ if not os.path.exists(log_file_path):
 
 # Define the stream command
 command = [
-    'whisper-stream', 
-    '-m', whisper_model, 
-    '--step', '4500', 
-    '--length', '5000', 
+    'whisper-stream',
+    '-m', whisper_model,
+    '--step', '4500',
+    '--length', '5000',
     '-c', mic,
     '-t', threads,
-    '-ac', '512', 
+    '-ac', '512',
     '--keep', '85'
 ]
 
@@ -45,7 +45,7 @@ try:
         line = process.stdout.readline()
         if not line:
             break  # If no output, break the loop
-        
+
         if "[2K" not in line and "[" not in line and "(" not in line:
             with open(log_file_path, 'a') as log_file:
                 log_file.write(line)

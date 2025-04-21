@@ -26,33 +26,33 @@ def build_prompt_and_update_conversation():
             lines = f.readlines()
     except FileNotFoundError:
         lines = []
-    
+
     # Build recent transcript string
     recent_transcript = " ".join(line.strip() for line in lines[-number_of_transcript_lines:] if line.strip())
-    
+
     # Decide on the prompt content based on transcript availability
     if not recent_transcript:
         prompt = television_prompt_no_transcript
     else:
         prompt = television_prompt_start + recent_transcript + television_prompt_end
-    
+
     # Display the prompt
     print("Prompt:", prompt)
-    
+
     # Load existing conversation from JSON file
     try:
         with open(conversation_file, "r") as f:
             conversation = json.load(f)
     except Exception:
         conversation = []
-    
+
     # Append new user message to the conversation
     conversation.append({"role": "user", "content": prompt})
-    
+
     # Write updated conversation back to file
     with open(conversation_file, "w") as f:
         json.dump(conversation, f, indent=4)
-    
+
     return
 
 def clean_response(response):
@@ -75,7 +75,7 @@ def clean_response(response):
 
 def comment_on_television():
     build_prompt_and_update_conversation()
-    
+
     # Start led_dynamite erratic flashing during llm processing
     led_thread = start_led(led_dynamite, "erratic")
     try:
@@ -87,11 +87,11 @@ def comment_on_television():
         print(f"Error getting LLM response: {e}")
         response = "Sorry, I'm having trouble thinking right now."
     stop_led(led_thread)
-    
+
     # Start led_intercom breathing pattern during speak_text
     led_thread = start_led(led_intercom, "breathing")
     speak_text(response)
-    
+
     # Append assistant response to conversation JSON file
     try:
         with open(conversation_file, "r") as f:
@@ -101,7 +101,7 @@ def comment_on_television():
     conversation.append({"role": "assistant", "content": response})
     with open(conversation_file, "w") as f:
         json.dump(conversation, f, indent=4)
-    
+
     stop_led(led_thread)
-    
+
     return
