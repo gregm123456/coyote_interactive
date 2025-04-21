@@ -63,7 +63,7 @@ def clean_response(response):
 
     last_ending_index = max(response.rfind(ending) for ending in sentence_endings)
     if last_ending_index != -1:
-        response = response[:last_ending_index+1]
+        response = response[:last_ending_index + 1]  # Added space around +
 
     response = response.strip()
     response = response.replace("*", "")
