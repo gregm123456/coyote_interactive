@@ -46,4 +46,4 @@ PERSON_PROMPT_NO_TRANSCRIPT = "Ask a question of your friend who is watching tel
 
 # LLM configuration
 # azure or ollama
-LLM = "azure"
+LLM = "ollama"

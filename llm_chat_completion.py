@@ -4,6 +4,7 @@ import time
 import config
 from openai import AzureOpenAI
 import json
+import requests
 
 
 def chat_completion_azure(conversation_file):
@@ -36,8 +37,37 @@ def chat_completion_azure(conversation_file):
     return response
 
 def chat_completion_ollama(conversation_file):
-    # ...existing ollama chat completion logic...
-    return f"Ollama LLM response for {conversation_file}"
+    # Load conversation messages from file
+    with open(conversation_file, "r") as f:
+        messages = json.load(f)
+
+    payload = {
+        "model": config.OLLAMA_MODEL,
+        "keep_alive": config.OLLAMA_KEEP_ALIVE,
+        "stream": False,
+        "options": {
+            "temperature": config.OLLAMA_TEMPERATURE,
+            "top_k": config.OLLAMA_TOP_K,
+            "top_p": config.OLLAMA_TOP_P,
+            "num_ctx": config.OLLAMA_NUM_CTX,
+            "repeat_last_n": config.OLLAMA_REPEAT_LAST_N,
+            "repeat_penalty": config.OLLAMA_REPEAT_PENALTY,
+            "num_predict": config.OLLAMA_NUM_PREDICT,
+            "stop": ["#", "["]
+        },
+        "messages": messages
+    }
+
+    llm_response = requests.post(config.OLLAMA_ENDPOINT, json=payload)
+    llm_response_decoded = llm_response.content.decode()
+    llm_response_json = json.loads(llm_response_decoded)
+    
+    response = llm_response_json['message']['content']
+    print("\n")
+    print(response)
+    print("\n")
+    
+    return response
 
 def llm_chat_completion(conversation_file):
     if config.LLM == "azure":
