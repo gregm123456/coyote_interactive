@@ -1,7 +1,6 @@
 # Module to comment on television content.
 import os
 import json
-import time
 import config
 import re  # added re import
 from llm_chat_completion import llm_chat_completion

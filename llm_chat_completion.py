@@ -1,6 +1,5 @@
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
-import time
 import config
 from openai import AzureOpenAI
 import json
