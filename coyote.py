@@ -1,6 +1,7 @@
 import config
 from conversation_manager import conversation_setup, archive_conversation
 from buttons.button_manager import ButtonManager
+from leds.led_manager import start_led, stop_led  # Import LED control functions
 import threading
 import subprocess
 import time
@@ -39,7 +40,19 @@ def coyote_alive(stop_event):
                 archived_file = archive_conversation(config)
                 if archived_file:
                     print(f"Conversation archived to: {archived_file}")
+                
+                # Start erratic pattern on both LEDs
+                led_thread1 = start_led(config.GPIO_LED_DYNAMITE, "erratic")
+                led_thread2 = start_led(config.GPIO_LED_INTERCOM, "erratic")
+                
                 print("BOOM!")
+                
+                # Run erratic pattern for a few seconds
+                time.sleep(3)
+                
+                # Stop both LED patterns
+                stop_led(led_thread1)
+                stop_led(led_thread2)
         if stop_event.wait(0.1):
             break
     print("Coyote alive operations stopped.")
