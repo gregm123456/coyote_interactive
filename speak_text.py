@@ -2,10 +2,23 @@ import subprocess
 import re
 import tempfile
 import os
+import json
 
 
 def speak_text(text):
-    # Remove encoded Unicode sequences like "\uXXXX"
+    # First, decode the JSON string if it's enclosed in quotes and has escaped characters
+    if text.startswith('"') and text.endswith('"'):
+        try:
+            text = json.loads(text)
+        except json.JSONDecodeError:
+            # If it's not valid JSON, continue with the original text
+            pass
+    
+    # Replace Unicode apostrophes with ASCII apostrophes instead of removing them
+    text = re.sub(r'\\u2019', "'", text)  # Unicode RIGHT SINGLE QUOTATION MARK
+    text = re.sub(r'\\u2018', "'", text)  # Unicode LEFT SINGLE QUOTATION MARK
+    
+    # Remove other encoded Unicode sequences
     text = re.sub(r'\\u[0-9a-fA-F]{4}', '', text)
     
     # Fix common Unicode encoding issues with apostrophes
@@ -27,7 +40,8 @@ def speak_text(text):
     print("Speaking:", safe_text)
     
     # Use a temporary file to avoid shell escaping issues with apostrophes
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
+    # Add encoding='utf-8' to handle Unicode characters correctly
+    with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False) as tmp:
         tmp.write(safe_text)
         tmp_path = tmp.name
     
