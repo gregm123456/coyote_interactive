@@ -1,5 +1,5 @@
 import config
-from conversation_manager import conversation_setup
+from conversation_manager import conversation_setup, archive_conversation
 from buttons.button_manager import ButtonManager
 import threading
 import subprocess
@@ -35,6 +35,10 @@ def coyote_alive(stop_event):
         else:
             # Sleep mode logic - check for both buttons pressed simultaneously
             if bm_television.get_initial_state() and bm_person.get_initial_state():
+                # Archive the current conversation before BOOM
+                archived_file = archive_conversation(config)
+                if archived_file:
+                    print(f"Conversation archived to: {archived_file}")
                 print("BOOM!")
         if stop_event.wait(0.1):
             break
