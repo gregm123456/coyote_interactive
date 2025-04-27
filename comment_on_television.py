@@ -67,7 +67,6 @@ def clean_response(response):
 
     response = response.strip()
     response = response.replace("*", "")
-    response = response.replace("‘", "").replace("’", "").replace("'", "")
     response = response.replace('"', "")
     # replace all `\n` (with any number of escaped backslashes in front of it, like `\\\\n` '\\\\\\n``) with a single space
     response = re.sub(r'\\+n', ' ', response)

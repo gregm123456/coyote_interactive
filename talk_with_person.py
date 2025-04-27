@@ -61,7 +61,6 @@ def clean_response(response):
 
     response = response.strip()
     response = response.replace("*", "")
-    response = response.replace("‘", "").replace("'", "")
     response = response.replace('"', "")
     # Escape the string for JSON
     cleaned = json.dumps(response)
