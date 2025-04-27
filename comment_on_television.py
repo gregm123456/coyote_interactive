@@ -90,11 +90,7 @@ def comment_on_television():
         response = "Sorry, I'm having trouble thinking right now."
     stop_led(led_thread)
 
-    # Start led_intercom breathing pattern during speak_text
-    led_thread = start_led(led_intercom, "breathing")
-    speak_text(response)
-
-    # Append assistant response to conversation JSON file
+    # FIRST append assistant response to conversation JSON file
     try:
         with open(conversation_file, "r") as f:
             conversation = json.load(f)
@@ -104,6 +100,9 @@ def comment_on_television():
     with open(conversation_file, "w") as f:
         json.dump(conversation, f, indent=4)
 
+    # THEN start led_intercom breathing pattern during speak_text
+    led_thread = start_led(led_intercom, "breathing")
+    speak_text(response)
     stop_led(led_thread)
 
     return

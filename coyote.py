@@ -20,17 +20,22 @@ def coyote_alive(stop_event):
     # Instantiate ButtonManagers for each GPIO pin.
     bm_person = ButtonManager(button_listen_to_person)
     bm_television = ButtonManager(button_listen_to_television)
-    bm_switch = ButtonManager(switch_wake_sleep)
+    bm_wake_sleep = ButtonManager(switch_wake_sleep)
 
     # Loop until the stop event is triggered, checking every second.
     while not stop_event.is_set():
-        if bm_switch.get_initial_state():
+        if bm_wake_sleep.get_initial_state():
+            # Wake mode logic
             if bm_television.get_initial_state():
                 import comment_on_television
                 comment_on_television.comment_on_television()
             if bm_person.get_initial_state():
                 import talk_with_person
                 talk_with_person.talk_with_person(bm_person)
+        else:
+            # Sleep mode logic - check for both buttons pressed simultaneously
+            if bm_television.get_initial_state() and bm_person.get_initial_state():
+                print("BOOM!")
         if stop_event.wait(0.1):
             break
     print("Coyote alive operations stopped.")
