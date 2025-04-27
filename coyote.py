@@ -13,10 +13,6 @@ def coyote_alive(stop_event):
     button_listen_to_television = config.BUTTON_LISTEN_TO_TELEVISION
     switch_wake_sleep = config.SWITCH_WAKE_SLEEP
 
-    # Ensure the conversation directory is set up.
-    conversation_directory = conversation_setup(config)
-    print(f"Conversation directory ensured at: {conversation_directory}")
-
     # Instantiate ButtonManagers for each GPIO pin.
     bm_person = ButtonManager(button_listen_to_person)
     bm_television = ButtonManager(button_listen_to_television)
@@ -27,9 +23,13 @@ def coyote_alive(stop_event):
         if bm_wake_sleep.get_initial_state():
             # Wake mode logic
             if bm_television.get_initial_state():
+                # Ensure conversation directory exists before TV interaction
+                conversation_setup(config)
                 import comment_on_television
                 comment_on_television.comment_on_television()
             if bm_person.get_initial_state():
+                # Ensure conversation directory exists before person interaction
+                conversation_setup(config)
                 import talk_with_person
                 talk_with_person.talk_with_person(bm_person)
         else:
