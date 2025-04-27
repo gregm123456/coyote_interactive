@@ -9,6 +9,10 @@ def speak_text(text):
     safe_text = re.sub(r'[*"(){}\[\];|&`]', "", text)
     # replace `\n` with a space
     safe_text = re.sub(r'\\+n', ' ', safe_text)
+    
+    # Convert dollar amounts to spoken form (e.g., "$3" to "3 dollars", "$3.50" to "3 dollars 50 cents")
+    safe_text = re.sub(r'\$(\d+)\.(\d+)', r'\1 dollars \2 cents', safe_text)
+    safe_text = re.sub(r'\$(\d+)', r'\1 dollars', safe_text)
 
     print("Speaking:", safe_text)
     command = (
