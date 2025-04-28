@@ -21,3 +21,13 @@ venv/
 audio_to_text/transcription.txt
 conversation_data/
 person_questions.txt
+
+# Manager build and install artifacts
+manager/build/
+manager/dist/
+manager/*.egg-info/
+manager/lib/
+manager/lib/*
+manager/lib/*.egg-link
+manager/lib/*.egg/
+manager/manager.egg-info/
