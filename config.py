@@ -5,6 +5,10 @@ try:
 except ImportError:
     pass
 
+# Sound effects
+STARTUP_SOUND = "./sound_effects/meep-and-tongue.mp3"
+CONVERSATION_ARCHIVE_SOUND = "./sound_effects/tongue.mp3"
+
 # Hardware definitions
 GPIO_BUTTON_INTERCOM = 27
 GPIO_BUTTON_PLUNGER = 22

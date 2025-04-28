@@ -2,6 +2,7 @@ import config
 from conversation_manager import conversation_setup, archive_conversation
 from buttons.button_manager import ButtonManager
 from leds.led_manager import start_led, stop_led  # Import LED control functions
+from sound_effects.sound_effects import play_sound_effect  # Import sound effect function
 import threading
 import subprocess
 import time
@@ -40,15 +41,17 @@ def coyote_alive(stop_event):
                 archived_file = archive_conversation(config)
                 if archived_file:
                     print(f"Conversation archived to: {archived_file}")
+
                 
                 # Start erratic pattern on both LEDs
                 led_thread1 = start_led(config.GPIO_LED_DYNAMITE, "erratic")
                 led_thread2 = start_led(config.GPIO_LED_INTERCOM, "erratic")
-                
+                # Play conversation archive sound
+                play_sound_effect(config.CONVERSATION_ARCHIVE_SOUND)                
                 print("BOOM!")
                 
                 # Run erratic pattern for a few seconds
-                time.sleep(3)
+                time.sleep(1)
                 
                 # Stop both LED patterns
                 stop_led(led_thread1)
@@ -70,6 +73,9 @@ def start_transcriber():
 
 def main():
     """Start the transcriber process and coyote alive thread, and manage graceful shutdown."""
+    # Play startup sound when coyote.py first starts
+    play_sound_effect(config.STARTUP_SOUND)
+    
     stop_event = threading.Event()
     business_thread = threading.Thread(target=coyote_alive, args=(stop_event,))
     business_thread.daemon = True
