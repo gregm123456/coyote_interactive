@@ -49,7 +49,7 @@ try:
             with open(log_file_path, 'a') as log_file:
                 log_file.write(line)
                 log_file.flush()  # Flush the file to ensure the content is written immediately
-            print(f' {line.strip()}')
+            #print(f' {line.strip()}')
 except KeyboardInterrupt:
     # Handle Ctrl+C gracefully
     print('Stopping...')

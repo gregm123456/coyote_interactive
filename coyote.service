@@ -1,0 +1,21 @@
+[Unit]
+Description=Start Coyote Interactive in Byobu with full user environment
+After=network.target
+
+[Service]
+Type=forking
+WorkingDirectory=/home/robot/coyote_interactive
+Environment=HOME=/home/robot
+Environment=USER=robot
+Environment=LOGNAME=robot
+Environment=DISPLAY=:0
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=WHISPER_MODEL=/usr/share/whisper/models/ggml-base.en.bin
+Environment=PIPER_MODEL=/usr/share/piper/voices/en_GB/en_GB-alba-medium.onnx
+Environment=PIPER_MODEL_COYOTE=/usr/share/piper/voices/en_GB/en_GB-vctk-medium.onnx
+ExecStart=/bin/bash -c '/usr/bin/byobu new-session -d -s coyote_session "cd /home/robot/coyote_interactive && source venv/bin/activate && python coyote.py"'
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target

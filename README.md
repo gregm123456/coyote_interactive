@@ -15,13 +15,64 @@ A modular system for interactive coyote behaviors and communications.
 - **Talk with Person**: Captures intercom speech and manages the conversation flow with AI.
 - **Wake/Sleep Modes**: System operates in different modes based on switch position.
   - **BOOM Feature**: Press both buttons simultaneously in sleep mode to archive the current conversation.
+- **Auto-start on Boot**: System automatically starts on boot using systemd user services.
 
 ## Setup
 - Install dependencies (Python, gpiozero, whisper-stream, etc.).
 - Configure GPIO pins and other settings in config files.
 
 ## Usage
+### Running Manually
 - `python coyote.py`
+
+### Auto-start Configuration
+The system is configured to automatically start on boot using systemd:
+- Service runs in a Byobu session for easy attachment/detachment
+- Full environment context is maintained (Python virtual environment, working directory, etc.)
+- Environment variables for speech models are properly configured
+- To attach to the running session: `byobu attach -t coyote_session` (or use alias `b`)
+- To check service status: `systemctl --user status coyote.service`
+
+#### Setting Up Auto-start (Systemd Service)
+
+1. **Copy the service file to systemd user directory**:
+   ```bash
+   mkdir -p ~/.config/systemd/user/
+   cp /home/robot/coyote_interactive/coyote.service ~/.config/systemd/user/
+   ```
+
+2. **Reload systemd configuration**:
+   ```bash
+   systemctl --user daemon-reload
+   ```
+
+3. **Enable the service to start at boot**:
+   ```bash
+   systemctl --user enable coyote.service
+   ```
+
+4. **Enable lingering (to start service without user login)**:
+   ```bash
+   sudo loginctl enable-linger $USER
+   ```
+
+5. **Start the service immediately**:
+   ```bash
+   systemctl --user start coyote.service
+   ```
+
+6. **Create convenient alias to attach to session** (add to ~/.bashrc):
+   ```bash
+   echo "alias b='byobu attach -t coyote_session'" >> ~/.bashrc
+   source ~/.bashrc
+   ```
+
+7. **Check service status**:
+   ```bash
+   systemctl --user status coyote.service
+   ```
+
+**Note**: The service file (`coyote.service`) must be located at `~/.config/systemd/user/coyote.service` to function properly. A template is provided in the project root directory.
 
 ## Operation
 - **Wake Mode**: System actively responds to button presses for TV or person interactions.
