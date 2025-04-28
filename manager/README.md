@@ -74,6 +74,59 @@ There are two ways to install and run the Coyote System Manager:
    coyote-manager
    ```
 
+## System Configuration with setup.py
+
+The `setup.py` script is responsible for verifying and configuring various system requirements needed for the Coyote Manager to function correctly. You should run this script when:
+
+- Setting up the application for the first time
+- After system updates that might affect services or permissions
+- If you encounter permission issues with WiFi or system services
+- When experiencing problems with the coyote.service
+
+### When to run setup.py:
+
+- During initial installation
+- When troubleshooting permissions issues
+- After upgrading your operating system
+- If NetworkManager or systemd configurations have changed
+
+### What setup.py does:
+
+- Checks and configures sudo permissions for NetworkManager WiFi operations
+- Verifies the coyote.service file is properly installed
+- Enables systemd user lingering (allows services to run without login)
+- Verifies required system dependencies are installed
+- Sets up proper sudo permissions for systemctl commands
+
+### How to run setup.py:
+
+You can run the setup script in two ways:
+
+1. Directly as a Python script:
+   ```
+   cd ~/coyote_interactive/manager
+   python setup.py check_system
+   ```
+
+2. During package installation (will run automatically):
+   ```
+   cd ~/coyote_interactive
+   pip install -e ./manager
+   ```
+
+Follow the prompts and answer 'y' when asked to configure system settings. Some operations may require sudo privileges.
+
+### Verifying Configuration Only:
+
+If you just want to check your system configuration without making any changes:
+
+```
+cd ~/coyote_interactive/manager
+python check_system.py
+```
+
+This will run all system checks and report any issues without modifying your system.
+
 ## First Run Experience
 
 When running the Coyote System Manager for the first time, you'll see a terminal-based menu with the following options:
