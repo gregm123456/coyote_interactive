@@ -7,7 +7,7 @@ except ImportError:
 
 # Sound effects
 STARTUP_SOUND = "./sound_effects/meep-and-tongue.mp3"
-CONVERSATION_ARCHIVE_SOUND = "./sound_effects/tongue.mp3"
+CONVERSATION_ARCHIVE_SOUND = "./sound_effects/falls_off_a_cliff_trim.mp3"
 
 # Hardware definitions
 GPIO_BUTTON_INTERCOM = 27
