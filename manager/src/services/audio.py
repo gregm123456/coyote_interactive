@@ -128,3 +128,82 @@ class AudioManager:
             subprocess.run(f"pactl set-sink-mute {index} 0" if is_sink else f"pactl set-source-mute {index} 0", shell=True)
         except subprocess.CalledProcessError:
             pass
+
+    @staticmethod
+    def play_feedback_tone():
+        """Play a short beep to confirm volume change."""
+        try:
+            # Using 'play' command from sox package for a quick beep
+            subprocess.run("play -n synth 0.1 sine 1000", shell=True, 
+                          stdout=subprocess.DEVNULL, 
+                          stderr=subprocess.DEVNULL)
+        except Exception:
+            # Fallback method if play command fails
+            try:
+                subprocess.run("speaker-test -t sine -f 1000 -l 1 -p 5000", 
+                              shell=True, stdout=subprocess.DEVNULL, 
+                              stderr=subprocess.DEVNULL)
+            except Exception as e:
+                print(f"Failed to play feedback tone: {e}")
+
+    @staticmethod
+    def set_volume_step(index: int, step: int, is_sink: bool = False) -> float:
+        """
+        Set volume to a specific step (0-10) representing 0% to 100%
+        
+        Args:
+            index: The device index
+            step: Integer from 0-10 (0=0%, 1=10%, 5=50%, 10=100%)
+            is_sink: True for output devices, False for input devices
+            
+        Returns:
+            float: The new volume percentage
+        """
+        # Ensure step is between 0-10
+        step = max(0, min(10, step))
+        
+        # Convert to percentage (0-100)
+        volume_percent = step * 10.0
+        
+        # Set the volume using existing method
+        AudioManager.set_volume(index, volume_percent, is_sink=is_sink)
+        
+        # Play feedback tone if this is an output device and volume > 0
+        if is_sink and volume_percent > 0:
+            AudioManager.play_feedback_tone()
+        
+        return volume_percent
+
+    @staticmethod
+    def increment_volume(index: int, is_sink: bool = False) -> float:
+        """
+        Increase volume by 10% (one step)
+        
+        Returns: New volume level
+        """
+        current_volume = AudioManager.get_volume(index, is_sink)
+        current_step = round(current_volume / 10)
+        new_step = min(10, current_step + 1)  # Ensure we don't go above 10 (100%)
+        return AudioManager.set_volume_step(index, new_step, is_sink)
+
+    @staticmethod
+    def decrement_volume(index: int, is_sink: bool = False) -> float:
+        """
+        Decrease volume by 10% (one step)
+        
+        Returns: New volume level
+        """
+        current_volume = AudioManager.get_volume(index, is_sink)
+        current_step = round(current_volume / 10)
+        new_step = max(0, current_step - 1)  # Ensure we don't go below 0 (0%)
+        return AudioManager.set_volume_step(index, new_step, is_sink)
+
+    @staticmethod
+    def get_volume_step(index: int, is_sink: bool = False) -> int:
+        """
+        Get the current volume step (0-10)
+        
+        Returns: Integer representing volume step (0=0%, 10=100%)
+        """
+        current_volume = AudioManager.get_volume(index, is_sink)
+        return round(current_volume / 10)
