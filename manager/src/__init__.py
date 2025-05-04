@@ -1,4 +1,4 @@
-# This file marks the src directory as a Python package
+# Manager source package initialization
 """
 Coyote Manager Package
 

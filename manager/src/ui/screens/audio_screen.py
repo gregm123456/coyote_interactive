@@ -1,161 +1,161 @@
-from textual.widget import Widget
-from textual.widgets import Static, Button
-from textual.containers import Container
-from services.audio import AudioManager
-from textual.reactive import reactive
-from textual.binding import Binding
-from textual.message import Message
-from ui.widgets.audio_widgets import AudioDeviceWidget, MicrophoneWidget, OutputDeviceWidget
+from ...utils.terminal import clear_screen
+from ...services.audio import AudioManager
 
-class AudioScreen(Widget):
-    """Audio devices information and management screen."""
-    
-    # Add keyboard bindings
-    BINDINGS = [
-        # Number keys 0-9 for volume 0-90%
-        Binding("0", "set_volume(0)", "Volume 0%"),
-        Binding("1", "set_volume(1)", "Volume 10%"),
-        Binding("2", "set_volume(2)", "Volume 20%"),
-        Binding("3", "set_volume(3)", "Volume 30%"),
-        Binding("4", "set_volume(4)", "Volume 40%"),
-        Binding("5", "set_volume(5)", "Volume 50%"),
-        Binding("6", "set_volume(6)", "Volume 60%"),
-        Binding("7", "set_volume(7)", "Volume 70%"),
-        Binding("8", "set_volume(8)", "Volume 80%"),
-        Binding("9", "set_volume(9)", "Volume 90%"),
-        # Key for 100%
-        Binding("f", "set_volume(10)", "Full Volume (100%)"),
-        # Keys for increment/decrement
-        Binding("u", "increment_volume", "Volume Up"),
-        Binding("d", "decrement_volume", "Volume Down"),
-        # Refresh devices list
-        Binding("r", "refresh", "Refresh Devices")
-    ]
-    
-    # Track currently selected device
-    selected_device = None
-    
-    def compose(self):
-        """Compose the audio screen widgets."""
-        yield Static("Audio Management", classes="title")
+def show_audio_devices():
+    """Display audio device information."""
+    while True:
+        clear_screen()
+        print("=" * 50)
+        print("              Audio Devices                ")
+        print("=" * 50)
         
-        self.audio_devices_container = Container(id="audio-devices")
-        self.microphones_container = Container(id="microphones")
-        
-        yield Static("Audio Output Devices:")
-        yield self.audio_devices_container
-        
-        yield Static("Microphones:")
-        yield self.microphones_container
-        
-        yield Static("Keyboard Controls:", classes="section-header")
-        yield Static("0-9: Set volume 0-90% | f: Full volume (100%) | u: Volume up | d: Volume down | r: Refresh devices")
-        yield Static("Select a device first, then use keyboard controls to adjust volume")
-        
-        yield Button("Refresh", id="refresh", variant="primary")
-
-    def on_mount(self):
-        """Initialize and update audio devices when mounted."""
-        self.update_audio_devices()
-        self.update_microphones()
-
-    def update_audio_devices(self):
-        """Update the list of audio output devices."""
+        # Audio Output Devices
         devices = AudioManager.get_audio_output_devices()
-        self.audio_devices_container.remove_children()
+        print("Audio Output Devices:")
+        if not devices:
+            print("  No audio devices found")
+        else:
+            for device in devices:
+                print(f"  {device['index']}: {device['name']} (Volume: {device['volume']}%)")
+        
+        # Microphones
+        mics = AudioManager.get_usb_microphones()
+        print("\nMicrophones:")
+        if not mics:
+            print("  No microphones found")
+        else:
+            for mic in mics:
+                print(f"  {mic['index']}: {mic['name']} (Volume: {mic['volume']}%)")
+        
+        print("\nOptions:")
+        print("1. Refresh Audio Devices")
+        print("2. Select Output Device")
+        print("3. Select Input Device")
+        print("b. Back to Main Menu")
+        choice = input("\nSelect an option: ")
+        
+        if choice == '1':
+            continue  # Refresh and stay in this screen
+        elif choice == '2':
+            # Go to output device selection
+            select_audio_device(devices, is_output=True)
+            # After returning, don't exit but loop back to this screen
+            continue
+        elif choice == '3':
+            # Go to input device selection
+            select_audio_device(mics, is_output=False)
+            # After returning, don't exit but loop back to this screen
+            continue
+        elif choice.lower() == 'b':
+            return  # Only exit to main menu when explicitly choosing 'b'
+        else:
+            print("Invalid option")
+            input("Press Enter to continue...")
+            # Invalid choice, stay in this screen
+            continue
+
+def select_audio_device(devices, is_output=True):
+    """Select an audio device to adjust volume."""
+    while True:
+        clear_screen()
+        device_type = "Output Device" if is_output else "Input Device"
+        print("=" * 50)
+        print(f"              Select {device_type}                ")
+        print("=" * 50)
         
         if not devices:
-            self.audio_devices_container.mount(Static("No audio devices found"))
+            print(f"  No {device_type.lower()}s found")
+            input("Press Enter to continue...")
             return
-            
-        for device in devices:
-            device_widget = OutputDeviceWidget(
-                device_name=device["name"],
-                volume=device["volume"],
-                index=device["index"]
-            )
-            self.audio_devices_container.mount(device_widget)
-            # Listen for selection events from this widget
-            device_widget.on_message = self.handle_device_message
-
-    def update_microphones(self):
-        """Update the list of microphones."""
-        mics = AudioManager.get_usb_microphones()
-        self.microphones_container.remove_children()
         
-        if not mics:
-            self.microphones_container.mount(Static("No microphones found"))
-            return
-            
-        for mic in mics:
-            mic_widget = MicrophoneWidget(
-                device_name=mic["name"],
-                volume=mic["volume"],
-                index=mic["index"]
-            )
-            self.microphones_container.mount(mic_widget)
-            # Listen for selection events from this widget
-            mic_widget.on_message = self.handle_device_message
+        # Display devices
+        for device in devices:
+            print(f"  {device['index']}: {device['name']} (Volume: {device['volume']}%)")
+        
+        print("\nEnter the index of the device you want to adjust or 'b' to go back:")
+        choice = input("> ")
+        
+        if choice.lower() == 'b':
+            return  # Return to the audio devices screen
+        
+        # Validate input and find selected device
+        selected_device = None
+        device_index = -1 # Initialize with an invalid index
+        try:
+            device_index = int(choice)
+        except ValueError:
+            print("Invalid input. Please enter a number or 'b'.")
+            input("Press Enter to continue...")
+            continue  # Stay in the device selection screen
 
-    def handle_device_message(self, message):
-        """Handle messages from device widgets."""
-        if hasattr(message, "sender") and isinstance(message.sender, AudioDeviceWidget):
-            if message.name == "device_selected":
-                # When a device is selected, deselect all others
-                self.deselect_all_devices_except(message.sender)
-                self.selected_device = message.sender
-        return True
-
-    def deselect_all_devices_except(self, device):
-        """Deselect all devices except the given one."""
-        for child in self.audio_devices_container.children:
-            if isinstance(child, AudioDeviceWidget) and child != device:
-                child.selected = False
-                child.refresh()
+        # Find the device after successful conversion
+        for device in devices:
+            if device['index'] == device_index:
+                selected_device = device
+                break
                 
-        for child in self.microphones_container.children:
-            if isinstance(child, AudioDeviceWidget) and child != device:
-                child.selected = False
-                child.refresh()
+        if selected_device is None:
+            print("No device with that index found.")
+            input("Press Enter to continue...")
+            continue  # Stay in the device selection screen
+            
+        # Show volume control for selected device (moved outside the try block)
+        adjust_device_volume(selected_device, is_output)
+        # After volume adjustment, loop back to device selection
+        continue
 
-    def on_button_pressed(self, event):
-        """Handle button press events."""
-        if event.button.id == "refresh":
-            self.update_audio_devices()
-            self.update_microphones()
-
-    def action_set_volume(self, step: int):
-        """Set volume for selected device to specified step."""
-        if self.selected_device:
-            is_sink = isinstance(self.selected_device, OutputDeviceWidget)
-            self.selected_device.volume = AudioManager.set_volume_step(
-                self.selected_device.index, 
-                step, 
-                is_sink
-            )
-            self.selected_device.refresh()
-
-    def action_increment_volume(self):
-        """Increase volume for selected device."""
-        if self.selected_device:
-            is_sink = isinstance(self.selected_device, OutputDeviceWidget)
-            self.selected_device.volume = AudioManager.increment_volume(
-                self.selected_device.index, 
-                is_sink
-            )
-            self.selected_device.refresh()
-
-    def action_decrement_volume(self):
-        """Decrease volume for selected device."""
-        if self.selected_device:
-            is_sink = isinstance(self.selected_device, OutputDeviceWidget)
-            self.selected_device.volume = AudioManager.decrement_volume(
-                self.selected_device.index, 
-                is_sink
-            )
-            self.selected_device.refresh()
-
-    def action_refresh(self):
-        """Refresh the device lists."""
-        self.update_audio_devices()
-        self.update_microphones()
+def adjust_device_volume(device, is_output=True):
+    """Control volume of selected audio device."""
+    while True:
+        clear_screen()
+        device_type = "Output Device" if is_output else "Input Device"
+        print("=" * 50)
+        print(f"              Adjust {device_type} Volume                ")
+        print("=" * 50)
+        print(f"Device: {device['name']} (ID: {device['index']})")
+        
+        # Get current volume
+        current_volume = AudioManager.get_volume(device['index'], is_sink=is_output)
+        current_step = int(round(current_volume / 10))
+        
+        # Show volume bar - Use ASCII characters for broader compatibility
+        volume_bar = "#" * current_step + "-" * (10 - current_step)
+        print(f"Current volume: {current_volume}%")
+        print(f"[{volume_bar}] {current_volume}%")
+        
+        print("\nOptions:")
+        print("0-9: Set volume to 0%-90%")
+        print("f: Full volume (100%)")
+        print("u: Volume up by 10%")
+        print("d: Volume down by 10%")
+        print("r: Refresh")
+        print("b: Back to device selection")
+        
+        choice = input("\nEnter your choice: ")
+        
+        if choice in "0123456789":
+            # Set volume to 0-90%
+            step = int(choice)
+            volume = AudioManager.set_volume_step(device['index'], step, is_sink=is_output)
+            device['volume'] = volume
+        elif choice.lower() == 'f':
+            # Set to full volume (100%)
+            volume = AudioManager.set_volume_step(device['index'], 10, is_sink=is_output)
+            device['volume'] = volume
+        elif choice.lower() == 'u':
+            # Increase volume
+            volume = AudioManager.increment_volume(device['index'], is_sink=is_output)
+            device['volume'] = volume
+        elif choice.lower() == 'd':
+            # Decrease volume
+            volume = AudioManager.decrement_volume(device['index'], is_sink=is_output)
+            device['volume'] = volume
+        elif choice.lower() == 'r':
+            # Just refresh the display
+            continue
+        elif choice.lower() == 'b':
+            # Go back to device selection
+            return
+        else:
+            print("Invalid option")
+            input("Press Enter to continue...")

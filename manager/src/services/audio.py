@@ -1,6 +1,21 @@
 from typing import List, Tuple, Dict, Any
 import subprocess
 import re
+import os  # Added for path manipulation
+import logging  # Added for logging
+import sys  # Added for stderr printing
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Define the path to the sound effect relative to the project root
+# Assuming the script is run from the coyote_interactive directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+FEEDBACK_SOUND_PATH = os.path.join(PROJECT_ROOT, "..", "sound_effects", "meep-meep.mp3")
+FEEDBACK_SOUND_NAME = "volume-feedback-tone"
+
+# Flag to track if the sample has been uploaded
+feedback_sample_uploaded = False
 
 class AudioDevice:
     def __init__(self, name: str, index: int, volume: float):
@@ -130,21 +145,67 @@ class AudioManager:
             pass
 
     @staticmethod
-    def play_feedback_tone():
-        """Play a short beep to confirm volume change."""
+    def _run_pactl_command(command: list):
+        """Helper to run pactl commands and log errors."""
         try:
-            # Using 'play' command from sox package for a quick beep
-            subprocess.run("play -n synth 0.1 sine 1000", shell=True, 
-                          stdout=subprocess.DEVNULL, 
-                          stderr=subprocess.DEVNULL)
-        except Exception:
-            # Fallback method if play command fails
-            try:
-                subprocess.run("speaker-test -t sine -f 1000 -l 1 -p 5000", 
-                              shell=True, stdout=subprocess.DEVNULL, 
-                              stderr=subprocess.DEVNULL)
-            except Exception as e:
-                print(f"Failed to play feedback tone: {e}")
+            subprocess.run(["pactl"] + command, check=True, text=True, capture_output=True)
+            return True
+        except FileNotFoundError:
+            logging.error("Error: 'pactl' command not found. Is PulseAudio installed and running?")
+            return False
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Error running pactl command: {' '.join(command)}\n{e.stderr}")
+            return False
+        except Exception as e:
+            logging.error(f"Unexpected error running pactl command: {' '.join(command)}\n{e}")
+            return False
+
+    @staticmethod
+    def play_feedback_tone(index: int):
+        """Play a short beep on the specified sink index to confirm volume change."""
+        # Show more visible debug info directly to terminal
+        print(f"\n>>> Playing feedback tone on device #{index}")
+        print(f">>> Sound file path: {FEEDBACK_SOUND_PATH}")
+        
+        # Check if sound file exists
+        if not os.path.exists(FEEDBACK_SOUND_PATH):
+            print(f">>> ERROR: Sound file not found at {FEEDBACK_SOUND_PATH}")
+            return
+        
+        # First try: Use aplay with the specific sink name
+        try:
+            cmd = f"pactl play-sample volume-test-tone {index}"
+            print(f">>> Running: {cmd}")
+            result = subprocess.run(cmd, shell=True, text=True, 
+                                  stdout=sys.stdout, stderr=sys.stderr)
+            if result.returncode == 0:
+                print(">>> Success!")
+                return
+            print(f">>> pactl method failed with exit code {result.returncode}")
+        except Exception as e:
+            print(f">>> Error running pactl play-sample: {e}")
+        
+        # Second try: Use paplay and specify device
+        try:
+            cmd = f"paplay --device={index} {FEEDBACK_SOUND_PATH}"
+            print(f">>> Running: {cmd}")
+            result = subprocess.run(cmd, shell=True, text=True,
+                                  stdout=sys.stdout, stderr=sys.stderr)
+            if result.returncode == 0:
+                print(">>> Success!")
+                return
+            print(f">>> paplay failed with exit code {result.returncode}")
+        except Exception as e:
+            print(f">>> Error running paplay: {e}")
+            
+        # Last try: Just play the sound with standard aplay
+        try:
+            cmd = f"aplay {FEEDBACK_SOUND_PATH}"
+            print(f">>> Last attempt with simple aplay: {cmd}")
+            subprocess.run(cmd, shell=True, text=True,
+                         stdout=sys.stdout, stderr=sys.stderr)
+        except Exception as e:
+            print(f">>> Even simple aplay failed: {e}")
 
     @staticmethod
     def set_volume_step(index: int, step: int, is_sink: bool = False) -> float:
@@ -170,7 +231,8 @@ class AudioManager:
         
         # Play feedback tone if this is an output device and volume > 0
         if is_sink and volume_percent > 0:
-            AudioManager.play_feedback_tone()
+            # Pass the index to the feedback function
+            AudioManager.play_feedback_tone(index)
         
         return volume_percent
 
