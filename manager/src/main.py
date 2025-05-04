@@ -551,8 +551,8 @@ def show_television_transcript():
     """Display television transcript with auto-refresh functionality."""
     transcript_path = "/home/robot/coyote_interactive/audio_to_text/transcription.txt"
     last_lines = []
-    lines_to_show = 15
-    refresh_rate = 3  # seconds
+    lines_to_show = 3
+    refresh_rate = 1  # seconds (changed from 3 to 1)
     
     while True:
         clear_screen()
@@ -581,7 +581,9 @@ def show_television_transcript():
                     print("Transcript file is empty.")
                 else:
                     last_lines = all_lines[-lines_to_show:]
-                    print("\n".join(line.strip() for line in last_lines))
+                    # Add a point character at the start of each line
+                    for line in last_lines:
+                        print(f"• {line.strip()}")
             
             # Show current status and options
             print("\n" + "=" * 50)
@@ -590,12 +592,28 @@ def show_television_transcript():
             print("r: Refresh now")
             print("m: More lines (+3)")
             print("f: Fewer lines (-3)")
-            print("a: Auto-refresh")
+            print("a: Auto-refresh on/off")
             print("b: Back to Main Menu")
             
             # Wait for a keystroke with a timeout
             print(f"\nPress a key (auto-refresh in {refresh_rate}s)...")
-            choice = input_with_timeout(refresh_rate)
+            
+            # Use standard input instead of input_with_timeout to show typed characters
+            if refresh_rate <= 0:
+                # If timeout is disabled, just use regular input
+                choice = input("Enter your choice: ")
+            else:
+                import select
+                import sys
+                
+                # Set up a timeout for input
+                ready, _, _ = select.select([sys.stdin], [], [], refresh_rate)
+                if ready:
+                    # Input is available, read it
+                    choice = input("Enter your choice: ")
+                else:
+                    # Timeout occurred, refresh automatically
+                    choice = "_TIMEOUT_"
             
             if choice == '_TIMEOUT_':
                 # Timeout occurred, refresh automatically
@@ -617,8 +635,8 @@ def show_television_transcript():
                     refresh_rate = 0
                     print("Auto-refresh disabled.")
                 else:
-                    refresh_rate = 3
-                    print("Auto-refresh enabled (3s).")
+                    refresh_rate = 1  # Changed from 3 to 1
+                    print("Auto-refresh enabled (1s).")
                 input("Press Enter to continue...")
                 continue
             elif choice.lower() == 'b':
