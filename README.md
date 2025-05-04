@@ -82,9 +82,25 @@ The system is configured to automatically start on boot using systemd:
 The Coyote System Manager is a terminal-based utility for monitoring and managing system components:
 
 ### Features
-- Network monitoring (WiFi, Ethernet, VPN)
-- Audio device management
-- Coyote service control (start/stop/restart)
+- **Network Management**: 
+  - View and manage VPN status
+  - Display wireless access points and connection status
+  - Monitor wired network connections
+  - Store and manage wifi credentials for known networks
+
+- **Audio Management**: 
+  - List USB microphone names and their volume levels
+  - Display audio output device names and their volume levels
+  - Adjust volume levels with audible feedback
+  - Control devices with step-based volume adjustments
+
+- **Service Management**: 
+  - Show the status of the `coyote.service`
+  - Provide options to start, stop, and restart the service
+
+- **Content Features**:
+  - Television transcript display and management
+  - Interactive dialogue system
 
 ### Installation
 There are two ways to use the System Manager:
@@ -103,20 +119,21 @@ There are two ways to use the System Manager:
    ```
 
 ### System Configuration
-The manager includes a setup script to configure system permissions and check dependencies:
+The manager includes a configuration script (`check_system.py`) to verify and set up system requirements:
 
 ```bash
 cd ~/coyote_interactive/manager
-python setup.py check_system
+python check_system.py
 ```
 
 This script will:
-- Configure sudo permissions for NetworkManager WiFi operations
-- Set up systemd user lingering
-- Install coyote.service if needed
-- Check for required system dependencies
+- Check and configure sudo permissions for NetworkManager WiFi operations
+- Verify the coyote.service file is properly installed
+- Enable systemd user lingering (allows services to run without login)
+- Verify required system dependencies are installed
+- Set up proper sudo permissions for systemctl commands
 
-For more details, see the [manager README](manager/README.md).
+For complete details about the manager, see the [manager README](manager/README.md).
 
 ## Operation
 - **Wake Mode**: System actively responds to button presses for TV or person interactions.
