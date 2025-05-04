@@ -480,73 +480,68 @@ def adjust_device_volume(device, is_output=True):
 
 def show_service_management():
     """Display service management options."""
-    clear_screen()
-    print("=" * 50)
-    print("            Service Management              ")
-    print("=" * 50)
-    
-    status = get_service_status(COYOTE_SERVICE_NAME)
-    print(f"Service: {COYOTE_SERVICE_NAME}")
-    print(f"Status: {status}")
-    
-    # Get more detailed information about the service
-    print("\nService Details:")
-    details = get_service_details(COYOTE_SERVICE_NAME)
-    
-    # Print only the first few lines to keep it readable
-    detail_lines = details.splitlines()
-    for i, line in enumerate(detail_lines[:10]):  # Show first 10 lines max
-        print(f"  {line}")
-    if len(detail_lines) > 10:
-        print(f"  ... and {len(detail_lines) - 10} more lines")
-    
-    print("\nOptions:")
-    print("1. Start Service")
-    print("2. Stop Service")
-    print("3. Restart Service")
-    print("4. View Full Service Details")
-    print("5. Refresh Status")
-    print("b. Back to Main Menu")
-    choice = input("\nSelect an option: ")
-    
-    if choice == '1':
-        success, message = start_service(COYOTE_SERVICE_NAME)
-        print(message)
-        if not success:
-            print("\nTroubleshooting tips:")
-            print("- Check if the service file is properly configured")
-            print("- Verify the ExecStart path in the service file")
-            print("- Look for any dependency issues in the service")
-            print("- Check the full logs using journalctl -u coyote.service")
-        input("Press Enter to continue...")
-        show_service_management()
-    elif choice == '2':
-        success, message = stop_service(COYOTE_SERVICE_NAME)
-        print(message)
-        input("Press Enter to continue...")
-        show_service_management()
-    elif choice == '3':
-        success, message = restart_service(COYOTE_SERVICE_NAME)
-        print(message)
-        input("Press Enter to continue...")
-        show_service_management()
-    elif choice == '4':
+    while True: # Add loop for refresh/retry
         clear_screen()
         print("=" * 50)
-        print(f"     Full Service Details for {COYOTE_SERVICE_NAME}     ")
+        print("            Service Management              ")
         print("=" * 50)
-        print(details)
-        print("\n" + "=" * 50)
-        input("Press Enter to return...")
-        show_service_management()
-    elif choice == '5':
-        show_service_management()
-    elif choice.lower() == 'b':
-        return
-    else:
-        print("Invalid option")
-        input("Press Enter to continue...")
-        show_service_management()
+
+        status = get_service_status(COYOTE_SERVICE_NAME)
+        print(f"Service: {COYOTE_SERVICE_NAME}")
+        print(f"Status: {status}")
+
+        # Get detailed information to extract the 'Active' line
+        details = get_service_details(COYOTE_SERVICE_NAME)
+        detail_lines = details.splitlines()
+        active_line = ""
+        for line in detail_lines:
+            stripped_line = line.strip()
+            if stripped_line.startswith("Active:"):
+                active_line = stripped_line # Keep the whole line
+                break
+
+        if active_line:
+            # Indent the active line slightly for clarity
+            print(f"  {active_line}")
+        elif status != 'inactive': # Only show if not inactive and active line missing
+             print("  (Could not retrieve running time details)")
+
+        print("\nOptions:")
+        print("1. Start Service")
+        print("2. Stop Service")
+        print("3. Restart Service")
+        print("4. Refresh Status") # Renumbered
+        print("b. Back to Main Menu")
+        choice = input("\nSelect an option: ")
+
+        if choice == '1':
+            success, message = start_service(COYOTE_SERVICE_NAME)
+            print(message)
+            if not success:
+                print("\nTroubleshooting tips:")
+                print("- Check service file, ExecStart path, dependencies.")
+                print("- Check logs: journalctl --user -u coyote.service")
+            input("Press Enter to continue...")
+            # Loop continues, effectively refreshing
+        elif choice == '2':
+            success, message = stop_service(COYOTE_SERVICE_NAME)
+            print(message)
+            input("Press Enter to continue...")
+            # Loop continues
+        elif choice == '3':
+            success, message = restart_service(COYOTE_SERVICE_NAME)
+            print(message)
+            input("Press Enter to continue...")
+            # Loop continues
+        elif choice == '4':
+            # Just continue the loop to refresh
+            continue
+        elif choice.lower() == 'b':
+            return # Exit the loop and return to main menu
+        else:
+            print("Invalid option")
+            input("Press Enter to continue...")
+            # Loop continues
 
 def show_television_transcript():
     """Display television transcript with auto-refresh functionality."""
