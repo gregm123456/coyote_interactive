@@ -172,20 +172,7 @@ class AudioManager:
             print(f">>> ERROR: Sound file not found at {FEEDBACK_SOUND_PATH}")
             return
         
-        # First try: Use aplay with the specific sink name
-        try:
-            cmd = f"pactl play-sample volume-test-tone {index}"
-            print(f">>> Running: {cmd}")
-            result = subprocess.run(cmd, shell=True, text=True, 
-                                  stdout=sys.stdout, stderr=sys.stderr)
-            if result.returncode == 0:
-                print(">>> Success!")
-                return
-            print(f">>> pactl method failed with exit code {result.returncode}")
-        except Exception as e:
-            print(f">>> Error running pactl play-sample: {e}")
-        
-        # Second try: Use paplay and specify device
+        # Try: Use paplay and specify device (this worked)
         try:
             cmd = f"paplay --device={index} {FEEDBACK_SOUND_PATH}"
             print(f">>> Running: {cmd}")
@@ -198,7 +185,7 @@ class AudioManager:
         except Exception as e:
             print(f">>> Error running paplay: {e}")
             
-        # Last try: Just play the sound with standard aplay
+        # Last try: Just play the sound with standard aplay (fallback)
         try:
             cmd = f"aplay {FEEDBACK_SOUND_PATH}"
             print(f">>> Last attempt with simple aplay: {cmd}")
