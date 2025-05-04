@@ -53,6 +53,11 @@ def build_prompt_and_update_conversation():
     with open(conversation_file, "w") as f:
         json.dump(conversation, f, indent=4)
 
+    # Write the recent transcript to last_heard_television.txt
+    last_heard_file = os.path.join(config.CONVERSATION_DATA_PATH, "last_heard_television.txt")
+    with open(last_heard_file, "w", encoding='utf-8') as f:  # Specify encoding
+        f.write(recent_transcript)
+
     return
 
 
@@ -101,7 +106,7 @@ def comment_on_television():
     
     # Save the cleaned response to last_coyote_commentary.txt instead of last_coyote_response.txt
     commentary_file = os.path.join(config.CONVERSATION_DATA_PATH, "last_coyote_commentary.txt")
-    with open(commentary_file, "w") as f:
+    with open(commentary_file, "w", encoding='utf-8') as f:  # Specify encoding
         # Remove the JSON formatting (quotes) from the response for cleaner text
         clean_text = json.loads(response) if response.startswith('"') and response.endswith('"') else response
         f.write(clean_text)

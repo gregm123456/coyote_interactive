@@ -47,7 +47,7 @@ def build_prompt_and_update_conversation(person_comment):
     conversation.append({"role": "user", "content": prompt})
 
     # Write updated conversation back to file
-    with open(conversation_file, "w") as f:
+    with open(conversation_file, "w", encoding='utf-8') as f:  # Specify encoding
         json.dump(conversation, f, indent=4)
 
     return
@@ -129,7 +129,7 @@ def capture_intercom_speech(bm=None):
     
     # Save the captured speech to a file in the conversation_data directory
     last_captured_speech_file = os.path.join(config.CONVERSATION_DATA_PATH, "last_captured_speech.txt")
-    with open(last_captured_speech_file, "w") as f:
+    with open(last_captured_speech_file, "w", encoding='utf-8') as f:  # Specify encoding
         f.write(captured_speech)
         
     print("Captured speech:", captured_speech)
@@ -151,17 +151,17 @@ def talk_with_person(bm=None):
 
     # FIRST append assistant response to conversation JSON file
     try:
-        with open(conversation_file, "r") as f:
+        with open(conversation_file, "r", encoding='utf-8') as f:  # Specify encoding for reading too
             conversation = json.load(f)
     except Exception:
         conversation = []
     conversation.append({"role": "assistant", "content": response})
-    with open(conversation_file, "w") as f:
+    with open(conversation_file, "w", encoding='utf-8') as f:  # Specify encoding
         json.dump(conversation, f, indent=4)
         
     # Save the cleaned response to last_coyote_reply.txt instead of last_coyote_response.txt
     reply_file = os.path.join(config.CONVERSATION_DATA_PATH, "last_coyote_reply.txt")
-    with open(reply_file, "w") as f:
+    with open(reply_file, "w", encoding='utf-8') as f:  # Specify encoding
         # Remove the JSON formatting (quotes) from the response for cleaner text
         clean_text = json.loads(response) if response.startswith('"') and response.endswith('"') else response
         f.write(clean_text)
