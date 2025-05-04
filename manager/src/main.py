@@ -646,10 +646,11 @@ def show_television_transcript():
 
 def show_dialogue():
     """Display conversation dialogue with auto-refresh functionality."""
-    # Paths to all three possible dialogue files
+    # Paths to all four possible dialogue files
     speech_path = "/home/robot/coyote_interactive/conversation_data/last_captured_speech.txt"
     commentary_path = "/home/robot/coyote_interactive/conversation_data/last_coyote_commentary.txt"
     reply_path = "/home/robot/coyote_interactive/conversation_data/last_coyote_reply.txt"
+    television_path = "/home/robot/coyote_interactive/conversation_data/last_heard_television.txt"
     refresh_rate = 1
     
     while True:
@@ -682,6 +683,14 @@ def show_dialogue():
                     'title': "Coyote's Reply",
                     'time': os.path.getmtime(reply_path),
                     'type': 'reply'
+                })
+            
+            if os.path.exists(television_path):
+                files_info.append({
+                    'path': television_path,
+                    'title': "Heard on Television",
+                    'time': os.path.getmtime(television_path),
+                    'type': 'television'
                 })
             
             if not files_info:
