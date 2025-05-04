@@ -21,6 +21,7 @@ def print_menu():
     print("1. Network Status")
     print("2. Audio Devices")
     print("3. Service Management")
+    print("4. Television Transcript")
     print("q. Quit")
     print("=" * 50)
     return input("Select an option: ")
@@ -546,6 +547,114 @@ def show_service_management():
         input("Press Enter to continue...")
         show_service_management()
 
+def show_television_transcript():
+    """Display television transcript with auto-refresh functionality."""
+    transcript_path = "/home/robot/coyote_interactive/audio_to_text/transcription.txt"
+    last_lines = []
+    lines_to_show = 15
+    refresh_rate = 3  # seconds
+    
+    while True:
+        clear_screen()
+        print("=" * 50)
+        print("              Television Transcript                ")
+        print("=" * 50)
+        
+        try:
+            # Check if file exists
+            if not os.path.exists(transcript_path):
+                print("Transcript file not found!")
+                print(f"Expected at: {transcript_path}")
+                print("\nOptions:")
+                print("r: Refresh")
+                print("b: Back to Main Menu")
+                
+                choice = input("\nEnter your choice: ")
+                if choice.lower() == 'b':
+                    return
+                continue
+            
+            # Read the latest content from the file
+            with open(transcript_path, "r") as file:
+                all_lines = file.readlines()
+                if not all_lines:
+                    print("Transcript file is empty.")
+                else:
+                    last_lines = all_lines[-lines_to_show:]
+                    print("\n".join(line.strip() for line in last_lines))
+            
+            # Show current status and options
+            print("\n" + "=" * 50)
+            print(f"Showing last {len(last_lines)} of {len(all_lines)} lines")
+            print("\nOptions:")
+            print("r: Refresh now")
+            print("m: More lines (+3)")
+            print("f: Fewer lines (-3)")
+            print("a: Auto-refresh")
+            print("b: Back to Main Menu")
+            
+            # Wait for a keystroke with a timeout
+            print(f"\nPress a key (auto-refresh in {refresh_rate}s)...")
+            choice = input_with_timeout(refresh_rate)
+            
+            if choice == '_TIMEOUT_':
+                # Timeout occurred, refresh automatically
+                continue
+            elif choice.lower() == 'r':
+                # Manual refresh requested
+                continue
+            elif choice.lower() == 'm':
+                # Show more lines (+3)
+                lines_to_show = min(lines_to_show + 3, 50)
+                continue
+            elif choice.lower() == 'f':
+                # Show fewer lines (-3)
+                lines_to_show = max(lines_to_show - 3, 3)
+                continue
+            elif choice.lower() == 'a':
+                # Toggle auto-refresh
+                if refresh_rate > 0:
+                    refresh_rate = 0
+                    print("Auto-refresh disabled.")
+                else:
+                    refresh_rate = 3
+                    print("Auto-refresh enabled (3s).")
+                input("Press Enter to continue...")
+                continue
+            elif choice.lower() == 'b':
+                # Return to main menu
+                return
+        
+        except Exception as e:
+            print(f"Error reading transcript: {e}")
+            input("Press Enter to continue...")
+
+def input_with_timeout(timeout):
+    """Get input with a timeout."""
+    if timeout <= 0:
+        # If timeout is disabled, just use regular input
+        return input()
+    
+    import select
+    import sys
+    import termios
+    import tty
+    
+    # Set stdin to non-blocking mode
+    old_settings = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setcbreak(sys.stdin.fileno())
+        
+        # Check if input is available within timeout
+        ready, _, _ = select.select([sys.stdin], [], [], timeout)
+        if ready:
+            return sys.stdin.readline().strip()
+        else:
+            return "_TIMEOUT_"
+    finally:
+        # Restore terminal settings
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
 def main():
     """Main application loop."""
     try:
@@ -559,6 +668,8 @@ def main():
                 show_audio_devices()
             elif choice == '3':
                 show_service_management()
+            elif choice == '4':
+                show_television_transcript()
             elif choice.lower() == 'q':
                 clear_screen()
                 print("Thank you for using Coyote System Manager!")
@@ -570,6 +681,3 @@ def main():
         clear_screen()
         print("Program terminated by user.")
         sys.exit(0)
-
-if __name__ == "__main__":
-    main()
