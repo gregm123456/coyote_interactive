@@ -98,6 +98,13 @@ def comment_on_television():
     conversation.append({"role": "assistant", "content": response})
     with open(conversation_file, "w") as f:
         json.dump(conversation, f, indent=4)
+    
+    # Save the cleaned response to last_coyote_commentary.txt instead of last_coyote_response.txt
+    commentary_file = os.path.join(config.CONVERSATION_DATA_PATH, "last_coyote_commentary.txt")
+    with open(commentary_file, "w") as f:
+        # Remove the JSON formatting (quotes) from the response for cleaner text
+        clean_text = json.loads(response) if response.startswith('"') and response.endswith('"') else response
+        f.write(clean_text)
 
     # THEN start led_intercom breathing pattern during speak_text
     led_thread = start_led(led_intercom, "breathing")

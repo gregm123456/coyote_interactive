@@ -22,6 +22,7 @@ def print_menu():
     print("2. Audio Devices")
     print("3. Service Management")
     print("4. Television Transcript")
+    print("5. Dialogue")
     print("q. Quit")
     print("=" * 50)
     return input("Select an option: ")
@@ -552,13 +553,12 @@ def show_television_transcript():
     transcript_path = "/home/robot/coyote_interactive/audio_to_text/transcription.txt"
     last_lines = []
     lines_to_show = 3
-    refresh_rate = 1  # seconds (changed from 3 to 1)
+    refresh_rate = 1
     
     while True:
         clear_screen()
-        print("=" * 50)
-        print("              Television Transcript                ")
-        print("=" * 50)
+        print("=" * 13 + " Television Transcript " + "=" * 13)
+        print("=" * 49)
         
         try:
             # Check if file exists
@@ -581,22 +581,19 @@ def show_television_transcript():
                     print("Transcript file is empty.")
                 else:
                     last_lines = all_lines[-lines_to_show:]
-                    # Add a point character at the start of each line
+                    # Add simple ASCII character at the start of each line
                     for line in last_lines:
-                        print(f"• {line.strip()}")
+                        print(f"* {line.strip()}")
             
             # Show current status and options
-            print("\n" + "=" * 50)
+            print("_" * 49)
             print(f"Showing last {len(last_lines)} of {len(all_lines)} lines")
-            print("\nOptions:")
-            print("r: Refresh now")
-            print("m: More lines (+3)")
-            print("f: Fewer lines (-3)")
+            print("m: More lines (+3) / f: Fewer lines (-3)")
             print("a: Auto-refresh on/off")
             print("b: Back to Main Menu")
             
             # Wait for a keystroke with a timeout
-            print(f"\nPress a key (auto-refresh in {refresh_rate}s)...")
+            print(f"Enter a choice (auto-refresh in {refresh_rate}s)...")
             
             # Use standard input instead of input_with_timeout to show typed characters
             if refresh_rate <= 0:
@@ -647,6 +644,121 @@ def show_television_transcript():
             print(f"Error reading transcript: {e}")
             input("Press Enter to continue...")
 
+def show_dialogue():
+    """Display conversation dialogue with auto-refresh functionality."""
+    # Paths to all three possible dialogue files
+    speech_path = "/home/robot/coyote_interactive/conversation_data/last_captured_speech.txt"
+    commentary_path = "/home/robot/coyote_interactive/conversation_data/last_coyote_commentary.txt"
+    reply_path = "/home/robot/coyote_interactive/conversation_data/last_coyote_reply.txt"
+    refresh_rate = 1
+    
+    while True:
+        clear_screen()
+        print("=" * 19 + " Dialogue " + "=" * 20)
+        
+        try:
+            # Check which files exist and get their modification times
+            files_info = []
+            
+            if os.path.exists(speech_path):
+                files_info.append({
+                    'path': speech_path,
+                    'title': "Person's Speech",
+                    'time': os.path.getmtime(speech_path),
+                    'type': 'speech'
+                })
+                
+            if os.path.exists(commentary_path):
+                files_info.append({
+                    'path': commentary_path,
+                    'title': "Coyote's TV Commentary",
+                    'time': os.path.getmtime(commentary_path),
+                    'type': 'commentary'
+                })
+                
+            if os.path.exists(reply_path):
+                files_info.append({
+                    'path': reply_path,
+                    'title': "Coyote's Reply",
+                    'time': os.path.getmtime(reply_path),
+                    'type': 'reply'
+                })
+            
+            if not files_info:
+                print("No dialogue files found!")
+                print("\nOptions:")
+                print("r: Refresh")
+                print("b: Back to Main Menu")
+                
+                choice = input("\nEnter your choice: ")
+                if choice.lower() == 'b':
+                    return
+                continue
+            
+            # Sort files by modification time (newest last)
+            files_info.sort(key=lambda x: x['time'])
+            
+            # Get the two most recent files (or all if fewer than 2)
+            if len(files_info) > 2:
+                files_to_show = files_info[-2:]
+            else:
+                files_to_show = files_info
+                
+            # Display files in chronological order (oldest first)
+            for file_info in files_to_show:
+                print(f"\n--- {file_info['title']} " + "-" * (28 - len(file_info['title'])))
+                with open(file_info['path'], "r") as file:
+                    content = file.read().strip()
+                    print(content)
+            
+            # Show minimal options at the bottom
+            print("\n" + "_" * 49)
+            print("a: Auto-refresh on/off | r: Refresh | b: Back")
+            
+            # Wait for a keystroke with a timeout
+            print(f"Enter choice (auto-refresh in {refresh_rate}s)...")
+            
+            # Use standard input with timeout for auto-refresh
+            if refresh_rate <= 0:
+                # If timeout is disabled, just use regular input
+                choice = input("> ")
+            else:
+                import select
+                import sys
+                
+                # Set up a timeout for input
+                ready, _, _ = select.select([sys.stdin], [], [], refresh_rate)
+                if ready:
+                    # Input is available, read it
+                    choice = input("> ")
+                else:
+                    # Timeout occurred, refresh automatically
+                    choice = "_TIMEOUT_"
+            
+            if choice == '_TIMEOUT_':
+                # Timeout occurred, refresh automatically
+                continue
+            elif choice.lower() == 'r':
+                # Manual refresh requested
+                continue
+            elif choice.lower() == 'a':
+                # Toggle auto-refresh
+                if refresh_rate > 0:
+                    refresh_rate = 0
+                    print("Auto-refresh disabled.")
+                else:
+                    refresh_rate = 1
+                    print("Auto-refresh enabled (1s).")
+                input("Press Enter to continue...")
+                continue
+            elif choice.lower() == 'b':
+                # Return to main menu
+                return
+        
+        except Exception as e:
+            print(f"Error reading dialogue files: {e}")
+            input("Press Enter to continue...")
+
 def input_with_timeout(timeout):
     """Get input with a timeout."""
     if timeout <= 0:
@@ -688,6 +800,8 @@ def main():
                 show_service_management()
             elif choice == '4':
                 show_television_transcript()
+            elif choice == '5':
+                show_dialogue()
             elif choice.lower() == 'q':
                 clear_screen()
                 print("Thank you for using Coyote System Manager!")

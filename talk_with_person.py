@@ -126,6 +126,12 @@ def capture_intercom_speech(bm=None):
     # If bm was created locally, there's no extra cleanup needed.
     with open("person_questions.txt", "r") as f:
         captured_speech = f.read()
+    
+    # Save the captured speech to a file in the conversation_data directory
+    last_captured_speech_file = os.path.join(config.CONVERSATION_DATA_PATH, "last_captured_speech.txt")
+    with open(last_captured_speech_file, "w") as f:
+        f.write(captured_speech)
+        
     print("Captured speech:", captured_speech)
     return captured_speech
 
@@ -152,6 +158,13 @@ def talk_with_person(bm=None):
     conversation.append({"role": "assistant", "content": response})
     with open(conversation_file, "w") as f:
         json.dump(conversation, f, indent=4)
+        
+    # Save the cleaned response to last_coyote_reply.txt instead of last_coyote_response.txt
+    reply_file = os.path.join(config.CONVERSATION_DATA_PATH, "last_coyote_reply.txt")
+    with open(reply_file, "w") as f:
+        # Remove the JSON formatting (quotes) from the response for cleaner text
+        clean_text = json.loads(response) if response.startswith('"') and response.endswith('"') else response
+        f.write(clean_text)
 
     # THEN start led_intercom breathing pattern during speak_text
     led_thread = start_led(led_intercom, "breathing")
