@@ -15,8 +15,20 @@ def clear_screen():
 
 def print_menu():
     """Print the main menu options."""
+    # Get the service status
+    status = get_service_status(COYOTE_SERVICE_NAME)
+    
+    # Determine the title based on status
+    if status == 'active':
+        title = "Coyote System Manager - Service Up"
+    else:
+        title = "Coyote System Manager - Service Down"
+        
+    # Center the title
+    title_line = title.center(50)
+    
     print("=" * 50)
-    print("       Coyote System Manager - Terminal Edition       ")
+    print(title_line)  # Use the dynamic title
     print("=" * 50)
     print("1. Network Status")
     print("2. Audio Devices")
