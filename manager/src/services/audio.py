@@ -38,7 +38,7 @@ class AudioManager:
     def get_usb_microphones() -> List[Dict[str, Any]]:
         devices = []
         try:
-            output = subprocess.check_output("pactl list sources", shell=True, text=True)
+            output = subprocess.check_output("pactl list sources", shell=True, text=True, stderr=subprocess.DEVNULL)
             current_index = None
             current_name = None
             
@@ -67,8 +67,12 @@ class AudioManager:
                     current_index = None
                     current_name = None
                     
-        except subprocess.CalledProcessError as e:
-            print(f"Error getting microphones: {e}")
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            # Pactl failed. Try ALSA fallback.
+            try:
+                devices = AudioManager._get_alsa_input_devices()
+            except Exception:
+                pass
         except Exception as e:
             print(f"Unexpected error in get_usb_microphones: {e}")
             
@@ -78,7 +82,7 @@ class AudioManager:
     def get_audio_output_devices() -> List[Dict[str, Any]]:
         devices = []
         try:
-            output = subprocess.check_output("pactl list sinks", shell=True, text=True)
+            output = subprocess.check_output("pactl list sinks", shell=True, text=True, stderr=subprocess.DEVNULL)
             current_index = None
             current_name = None
             
@@ -106,43 +110,116 @@ class AudioManager:
                     current_index = None
                     current_name = None
                     
-        except subprocess.CalledProcessError as e:
-            print(f"Error getting audio devices: {e}")
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            # Pactl failed — try ALSA fallback using aplay -l
+            try:
+                devices = AudioManager._get_alsa_output_devices()
+            except Exception:
+                pass
         except Exception as e:
             print(f"Unexpected error in get_audio_output_devices: {e}")
             
         return devices
 
     @staticmethod
+    def _get_alsa_input_devices() -> List[Dict[str, Any]]:
+        """Fallback to ALSA `arecord -l` to list capture devices.
+
+        Returns list of devices with keys: name, full_name, index, volume
+        """
+        devices: List[Dict[str, Any]] = []
+        try:
+            out = subprocess.check_output(["arecord", "-l"], text=True, stderr=subprocess.DEVNULL)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return []
+
+        # Parse lines like: "card 1: Device [USB Audio Device], device 0: ..."
+        for line in out.splitlines():
+            line = line.strip()
+            m = re.match(r"card (\d+): (.+?) \[(.+?)\]", line)
+            if m:
+                card_num = int(m.group(1))
+                card_name = m.group(2)
+                card_bracket = m.group(3)
+                # consider USB cards
+                if "usb" in card_name.lower() or "usb" in card_bracket.lower():
+                    devices.append({
+                        "name": card_bracket,
+                        "full_name": f"hw:{card_num}",
+                        "index": card_num,
+                        "volume": AudioManager.get_volume(card_num, is_sink=False),
+                    })
+
+        return devices
+
+    @staticmethod
+    def _get_alsa_output_devices() -> List[Dict[str, Any]]:
+        """Fallback to ALSA `aplay -l` to list playback devices."""
+        devices: List[Dict[str, Any]] = []
+        try:
+            out = subprocess.check_output(["aplay", "-l"], text=True, stderr=subprocess.DEVNULL)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return []
+
+        for line in out.splitlines():
+            line = line.strip()
+            m = re.match(r"card (\d+): (.+?) \[(.+?)\]", line)
+            if m:
+                card_num = int(m.group(1))
+                card_name = m.group(2)
+                card_bracket = m.group(3)
+                if "usb" in card_name.lower() or "usb" in card_bracket.lower():
+                    devices.append({
+                        "name": card_bracket,
+                        "full_name": f"hw:{card_num}",
+                        "index": card_num,
+                        "volume": AudioManager.get_volume(card_num, is_sink=True),
+                    })
+
+        return devices
+
+    @staticmethod
     def get_volume(index: int, is_sink: bool = False) -> float:
         try:
-            output = subprocess.check_output(f"pactl get-sink-volume {index}" if is_sink else f"pactl get-source-volume {index}", shell=True, text=True)
+            output = subprocess.check_output(f"pactl get-sink-volume {index}" if is_sink else f"pactl get-source-volume {index}", shell=True, text=True, stderr=subprocess.DEVNULL)
             volume = output.split()[4].replace('%', '')
             return float(volume)
-        except subprocess.CalledProcessError:
-            return 0.0
+        except (subprocess.CalledProcessError, FileNotFoundError, IndexError):
+            return AudioManager._get_alsa_volume(index, is_sink)
 
     @staticmethod
     def set_volume(index: int, volume: float, is_sink: bool = False) -> None:
         try:
             volume_str = f"{volume}%"
-            subprocess.run(f"pactl set-sink-volume {index} {volume_str}" if is_sink else f"pactl set-source-volume {index} {volume_str}", shell=True)
-        except subprocess.CalledProcessError:
-            pass
+            subprocess.run(f"pactl set-sink-volume {index} {volume_str}" if is_sink else f"pactl set-source-volume {index} {volume_str}", shell=True, check=True, stderr=subprocess.DEVNULL)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            AudioManager._set_alsa_volume(index, volume, is_sink)
 
     @staticmethod
     def mute_device(index: int, is_sink: bool = False) -> None:
         try:
-            subprocess.run(f"pactl set-sink-mute {index} 1" if is_sink else f"pactl set-source-mute {index} 1", shell=True)
-        except subprocess.CalledProcessError:
-            pass
+            subprocess.run(f"pactl set-sink-mute {index} 1" if is_sink else f"pactl set-source-mute {index} 1", shell=True, check=True, stderr=subprocess.DEVNULL)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            # ALSA mute fallback
+            controls = ["Speaker", "PCM", "Master", "Headphone"] if is_sink else ["Capture", "Mic"]
+            for control in controls:
+                try:
+                    subprocess.run(f"amixer -c {index} sset {control} mute", shell=True, check=True, stderr=subprocess.DEVNULL)
+                except subprocess.CalledProcessError:
+                    continue
 
     @staticmethod
     def unmute_device(index: int, is_sink: bool = False) -> None:
         try:
-            subprocess.run(f"pactl set-sink-mute {index} 0" if is_sink else f"pactl set-source-mute {index} 0", shell=True)
-        except subprocess.CalledProcessError:
-            pass
+            subprocess.run(f"pactl set-sink-mute {index} 0" if is_sink else f"pactl set-source-mute {index} 0", shell=True, check=True, stderr=subprocess.DEVNULL)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            # ALSA unmute fallback
+            controls = ["Speaker", "PCM", "Master", "Headphone"] if is_sink else ["Capture", "Mic"]
+            for control in controls:
+                try:
+                    subprocess.run(f"amixer -c {index} sset {control} unmute", shell=True, check=True, stderr=subprocess.DEVNULL)
+                except subprocess.CalledProcessError:
+                    continue
 
     @staticmethod
     def _run_pactl_command(command: list):
@@ -151,14 +228,42 @@ class AudioManager:
             subprocess.run(["pactl"] + command, check=True, text=True, capture_output=True)
             return True
         except FileNotFoundError:
-            logging.error("Error: 'pactl' command not found. Is PulseAudio installed and running?")
             return False
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Error running pactl command: {' '.join(command)}\n{e.stderr}")
+        except subprocess.CalledProcessError:
             return False
-        except Exception as e:
-            logging.error(f"Unexpected error running pactl command: {' '.join(command)}\n{e}")
+        except Exception:
             return False
+
+    @staticmethod
+    def _get_alsa_volume(index: int, is_sink: bool = False) -> float:
+        """Fallback to amixer for volume if pactl is unavailable."""
+        try:
+            controls = ["Speaker", "PCM", "Master", "Headphone"] if is_sink else ["Capture", "Mic"]
+            for control in controls:
+                try:
+                    output = subprocess.check_output(f"amixer -c {index} sget {control}", shell=True, text=True, stderr=subprocess.DEVNULL)
+                    match = re.search(r"\[(\d+)%\]", output)
+                    if match:
+                        return float(match.group(1))
+                except (subprocess.CalledProcessError, FileNotFoundError):
+                    continue
+        except Exception:
+            pass
+        return 0.0
+
+    @staticmethod
+    def _set_alsa_volume(index: int, volume: float, is_sink: bool = False) -> None:
+        """Fallback to amixer for setting volume."""
+        try:
+            controls = ["Speaker", "PCM", "Master", "Headphone"] if is_sink else ["Capture", "Mic"]
+            for control in controls:
+                try:
+                    subprocess.run(f"amixer -c {index} sset {control} {int(volume)}%", shell=True, check=True, stderr=subprocess.DEVNULL)
+                    return
+                except (subprocess.CalledProcessError, FileNotFoundError):
+                    continue
+        except Exception:
+            pass
 
     @staticmethod
     def play_feedback_tone(index: int):
