@@ -3,6 +3,7 @@ import re
 import tempfile
 import os
 import json
+from config import SPEAKER_DEVICE
 
 
 def speak_text(text):
@@ -51,7 +52,7 @@ def speak_text(text):
             f"cat {tmp_path} | "
             "piper --model $PIPER_MODEL_COYOTE -s 71 --length_scale 1.75 --output-raw | "
             "sox -t raw -r 22050 -e signed -b 16 -c 1 - -t raw - pitch -200 vol 0.98 | "
-            "aplay -r 22050 -f S16_LE -t raw"
+            f"aplay -D {SPEAKER_DEVICE} -r 22050 -f S16_LE -t raw"
         )
 
         subprocess.run(command, shell=True)

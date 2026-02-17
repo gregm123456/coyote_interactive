@@ -6,10 +6,11 @@ from ...utils.terminal import clear_screen
 def show_dialogue():
     """Display conversation dialogue with auto-refresh functionality."""
     # Paths to all four possible dialogue files
-    speech_path = "/home/robot/coyote_interactive/conversation_data/last_captured_speech.txt"
-    commentary_path = "/home/robot/coyote_interactive/conversation_data/last_coyote_commentary.txt"
-    reply_path = "/home/robot/coyote_interactive/conversation_data/last_coyote_reply.txt"
-    television_path = "/home/robot/coyote_interactive/conversation_data/last_heard_television.txt"
+    base_dir = os.path.expanduser("~/coyote_interactive/conversation_data")
+    speech_path = os.path.join(base_dir, "last_captured_speech.txt")
+    commentary_path = os.path.join(base_dir, "last_coyote_commentary.txt")
+    reply_path = os.path.join(base_dir, "last_coyote_reply.txt")
+    television_path = os.path.join(base_dir, "last_heard_television.txt")
     refresh_rate = 1
     
     while True:

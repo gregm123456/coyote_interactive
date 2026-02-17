@@ -19,9 +19,26 @@ A modular system for interactive coyote behaviors and communications.
 - **System Manager**: Terminal-based utility to manage network, audio settings, and service control.
 
 ## Setup
-- Install dependencies (Python, gpiozero, whisper-stream, etc.).
-- Configure GPIO pins and other settings in config files.
-- Run system configuration checks with the manager's setup.py script.
+
+### New Installation on Raspberry Pi
+
+**For a fresh Raspberry Pi setup, see:**
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick reference and automated installation
+- **[INSTALL.md](INSTALL.md)** - Complete step-by-step installation guide
+
+**Quick Install:**
+```bash
+cd ~/coyote_interactive
+./install.sh
+```
+
+After installation, you MUST edit `config_secrets.py` with your API credentials.
+
+### Manual Setup Summary
+- Install dependencies (Python, gpiozero, whisper-stream, piper, etc.)
+- Configure GPIO pins and other settings in config files
+- Run system configuration checks with the manager's check_system.py script
+- Set up systemd service for auto-start
 
 ## Usage
 ### Running Manually

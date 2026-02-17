@@ -40,14 +40,17 @@ def check_user_service_permissions():
 
 def check_nmcli_sudo_permissions():
     """Check if necessary NetworkManager sudo permissions exist for WiFi management."""
+    # Get current username
+    username = os.environ.get('USER', os.environ.get('USERNAME', 'gregm'))
+    
     # Required sudo rules for NetworkManager WiFi operations
     required_rules = [
-        "robot ALL=(ALL) NOPASSWD: /usr/bin/nmcli device wifi connect *",
-        "robot ALL=(ALL) NOPASSWD: /usr/bin/nmcli connection modify *"
+        f"{username} ALL=(ALL) NOPASSWD: /usr/bin/nmcli device wifi connect *",
+        f"{username} ALL=(ALL) NOPASSWD: /usr/bin/nmcli connection modify *"
     ]
     
     # File path for custom sudoers file
-    sudoers_file_path = "/etc/sudoers.d/robot-nmcli"
+    sudoers_file_path = f"/etc/sudoers.d/{username}-nmcli"
     
     # Check if the sudoers file exists with correct ownership
     ownership_issue = False
@@ -86,9 +89,9 @@ def check_nmcli_sudo_permissions():
         
         try:
             # Create a temporary file with the rules
-            temp_file = "/tmp/robot-nmcli-sudo"
+            temp_file = f"/tmp/{username}-nmcli-sudo"
             with open(temp_file, "w") as f:
-                f.write("# NetworkManager WiFi management permissions for robot user\n")
+                f.write(f"# NetworkManager WiFi management permissions for {username} user\n")
                 for rule in required_rules:
                     f.write(f"{rule}\n")
             

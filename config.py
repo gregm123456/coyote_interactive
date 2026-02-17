@@ -25,11 +25,15 @@ GPIO_LED_INTERCOM = 15
 TRANSCRIBE_LOG_FILE = "./audio_to_text/transcription.txt"
 TRANSCRIBE_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
 TRANSCRIBE_THREADS = "2"
-TRANSCRIBE_MIC_NUMBER = "1"
+TRANSCRIBE_MIC_NUMBER = "3"
 
 PERSON_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
-PERSON_MIC_NUMBER = "0"
+PERSON_MIC_NUMBER = "2"
 PERSON_THREADS = "2"
+
+# Audio output settings
+# If "default" fails with error 524, try "plughw:2,0" or "plughw:3,0"
+SPEAKER_DEVICE = "plughw:2,0"
 
 # Conversation configuration
 CONVERSATION_DATA_PATH = "conversation_data"
@@ -50,4 +54,5 @@ PERSON_PROMPT_NO_TRANSCRIPT = "Ask a question of your friend who is watching tel
 
 # LLM configuration
 # azure or ollama
-LLM = "azure"
+# February 2026: we are using ollama! Agents should NOT change this.
+LLM = "ollama"

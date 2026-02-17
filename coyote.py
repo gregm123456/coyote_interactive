@@ -63,7 +63,7 @@ def coyote_alive(stop_event):
 
 def start_transcriber():
     return subprocess.Popen([
-        "python", "/home/robot/coyote_interactive/audio_to_text/transcribe_continuously.py",
+        "python", "/home/gregm/coyote_interactive/audio_to_text/transcribe_continuously.py",
         "--log_file_path", config.TRANSCRIBE_LOG_FILE,
         "--whisper_model", config.TRANSCRIBE_WHISPER_MODEL,
         "--threads", config.TRANSCRIBE_THREADS,

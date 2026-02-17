@@ -5,7 +5,7 @@ from ...utils.terminal import clear_screen
 
 def show_television_transcript():
     """Display television transcript with auto-refresh functionality."""
-    transcript_path = "/home/robot/coyote_interactive/audio_to_text/transcription.txt"
+    transcript_path = os.path.expanduser("~/coyote_interactive/audio_to_text/transcription.txt")
     last_lines = []
     lines_to_show = 3
     refresh_rate = 1
