@@ -54,6 +54,7 @@ def _capture_device_details():
             {
                 "card": card,
                 "device": device,
+                "card_name": card_name,
                 "description": description,
                 "line": line.strip(),
             }
@@ -82,12 +83,29 @@ def resolve_capture_device(preferred, preferred_name="", preferred_name_match_in
     available_cards = [dev["card"] for dev in devices]
     if preferred_name:
         needle = preferred_name.lower().strip()
-        matches = []
+
+        # Prefer exact card-name matches first so "Audio" does not match "Audio_1".
+        exact_matches = []
+        for dev in devices:
+            if dev.get("card_name", "").lower().strip() == needle:
+                exact_matches.append(dev)
+
+        if exact_matches:
+            selected = exact_matches[min(match_index, len(exact_matches) - 1)]
+            selected_card = selected["card"]
+            try:
+                return str(available_cards.index(selected_card))
+            except ValueError:
+                return "0"
+
+        # Fall back to substring matching for flexible partial-name matching.
+        partial_matches = []
         for dev in devices:
             if needle in dev["description"].lower() or needle in dev["line"].lower():
-                matches.append(dev)
-        if matches:
-            selected = matches[min(match_index, len(matches) - 1)]
+                partial_matches.append(dev)
+
+        if partial_matches:
+            selected = partial_matches[min(match_index, len(partial_matches) - 1)]
             selected_card = selected["card"]
             try:
                 return str(available_cards.index(selected_card))

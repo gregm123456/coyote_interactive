@@ -28,7 +28,7 @@ TRANSCRIBE_THREADS = "2"
 TRANSCRIBE_MIC_NUMBER = "1"
 # Optional: set to a unique substring from `arecord -l` output to pick the TV mic.
 # When set, this takes priority over TRANSCRIBE_MIC_NUMBER.
-TRANSCRIBE_MIC_NAME_MATCH = ""
+TRANSCRIBE_MIC_NAME_MATCH = "Audio"
 # If TRANSCRIBE_MIC_NAME_MATCH matches multiple devices, use this zero-based match index.
 TRANSCRIBE_MIC_MATCH_INDEX = 0
 
@@ -37,7 +37,7 @@ PERSON_MIC_NUMBER = "0"
 PERSON_THREADS = "2"
 # Optional: set to a unique substring from `arecord -l` output to pick the intercom mic.
 # When set, this takes priority over PERSON_MIC_NUMBER.
-PERSON_MIC_NAME_MATCH = ""
+PERSON_MIC_NAME_MATCH = "Audio_1"
 # If PERSON_MIC_NAME_MATCH matches multiple devices, use this zero-based match index.
 PERSON_MIC_MATCH_INDEX = 0
 
