@@ -6,6 +6,7 @@
 A modular system for interactive coyote behaviors and communications.
 
 ## Features
+- **LLM Provider Selection**: Supports `azure`, `ollama`, and `ax650` provider modes.
 - **LEDs**: Control of LED patterns.
 - **Buttons**: Handling of button events.
 - **Audio to Text**: Continuous transcription using whisper-stream.
@@ -15,6 +16,7 @@ A modular system for interactive coyote behaviors and communications.
 - **Talk with Person**: Captures intercom speech and manages the conversation flow with AI.
 - **Wake/Sleep Modes**: System operates in different modes based on switch position.
   - **BOOM Feature**: Press both buttons simultaneously in sleep mode to archive the current conversation.
+  - **AX650 Runtime Reset**: In `ax650` mode, startup and BOOM both run AX650 stop/reset and reassert the system prompt.
 - **Auto-start on Boot**: System automatically starts on boot using systemd user services.
 - **System Manager**: Terminal-based utility to manage network, audio settings, and service control.
 
@@ -33,6 +35,17 @@ cd ~/coyote_interactive
 ```
 
 After installation, you MUST edit `config_secrets.py` with your API credentials.
+
+### LLM Provider Notes
+- Set `LLM` in `config.py` to one of `"azure"`, `"ollama"`, or `"ax650"`.
+- `ax650` uses a stateful runtime. Coyote keeps full local JSON conversation logging for observability, but outbound AX650 generation sends only the latest user prompt for each turn.
+- In `ax650` mode, Coyote performs AX650 soft reset (stop then reset with `SYSTEM_MESSAGE_TEXT`) at startup and after BOOM archive events.
+- AX650 endpoints and defaults are configured in `config_secrets.py`:
+  - `AX650_GENERATE_ENDPOINT = "http://localhost:11434/api/generate"`
+  - `AX650_RUNTIME_STOP_ENDPOINT = "http://127.0.0.1:8000/api/stop"`
+  - `AX650_RUNTIME_RESET_ENDPOINT = "http://127.0.0.1:8000/api/reset"`
+  - `AX650_MODEL = "qwen3-ax650"`
+  - `AX650_TIMEOUT_SECONDS = 30`
 
 ### Manual Setup Summary
 - Install dependencies (Python, gpiozero, whisper-stream, piper, etc.)

@@ -648,6 +648,39 @@ ollama run llama2 "test"
 # Update OLLAMA_ENDPOINT in config_secrets.py if using remote server
 ```
 
+### AX650 Runtime or Generation Fails
+
+**Symptom:** `LLM = "ax650"` responses fail, or startup/BOOM reset logs errors
+
+**Notes:**
+- AX650 generation uses `:11434` and sends only the latest user prompt (not full message history).
+- AX650 runtime reset uses `:8000` in this order: stop, then reset with `system_prompt`.
+
+**Checks:**
+```bash
+# Verify provider mode
+grep "^LLM" ~/coyote_interactive/config.py
+
+# Verify AX650 config values
+grep "^AX650_" ~/coyote_interactive/config_secrets.py
+
+# Check generation service
+curl http://localhost:11434/api/tags
+
+# Test generation call shape expected by coyote
+curl -X POST http://localhost:11434/api/generate \
+   -H "Content-Type: application/json" \
+   -d '{"model":"qwen3-ax650","prompt":"hello","stream":false}'
+
+# Check runtime stop/reset endpoints
+curl http://127.0.0.1:8000/api/stop
+curl -X POST http://127.0.0.1:8000/api/reset \
+   -H "Content-Type: application/json" \
+   -d '{"system_prompt":"test prompt"}'
+```
+
+If `:11434` works but `:8000` fails, conversations may still be logged locally but startup/BOOM runtime reset behavior will not complete.
+
 ### Model Not Found
 
 **Symptom:** "Model not found" errors
@@ -657,6 +690,7 @@ ollama run llama2 "test"
 # In config_secrets.py:
 # For Azure: AZURE_MODEL should match your deployment name, not "gpt-4"
 # For Ollama: OLLAMA_MODEL should match installed model
+# For AX650: AX650_MODEL should match the local AX650-served model name
 
 # List available Ollama models
 ollama list

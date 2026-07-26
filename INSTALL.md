@@ -215,7 +215,30 @@ nano config_secrets.py
 **Required Configuration:**
 - If using Azure OpenAI: Set `AZURE_OPENAI_GPT4_ENDPOINT`, `AZURE_OPENAI_GPT4_KEY`, and `AZURE_MODEL`
 - If using Ollama: Set `OLLAMA_ENDPOINT` and `OLLAMA_MODEL`
-- Update `LLM` variable in `config.py` to either `"azure"` or `"ollama"`
+- If using AX650: Set `AX650_GENERATE_ENDPOINT`, `AX650_RUNTIME_STOP_ENDPOINT`, `AX650_RUNTIME_RESET_ENDPOINT`, `AX650_MODEL`, and `AX650_TIMEOUT_SECONDS`
+- Update `LLM` variable in `config.py` to `"azure"`, `"ollama"`, or `"ax650"`
+
+**AX650 defaults:**
+- `AX650_GENERATE_ENDPOINT = "http://localhost:11434/api/generate"`
+- `AX650_RUNTIME_STOP_ENDPOINT = "http://127.0.0.1:8000/api/stop"`
+- `AX650_RUNTIME_RESET_ENDPOINT = "http://127.0.0.1:8000/api/reset"`
+- `AX650_MODEL = "qwen3-ax650"`
+- `AX650_TIMEOUT_SECONDS = 30`
+
+In `ax650` mode, Coyote sends only the latest user prompt to generation and relies on AX650 runtime state; local conversation JSON logging remains unchanged.
+
+Validate AX650 services before starting `coyote.py`:
+
+```bash
+# AX650 generation endpoint (Ollama-compatible)
+curl http://localhost:11434/api/tags
+
+# AX650 runtime control endpoints
+curl http://127.0.0.1:8000/api/stop
+curl -X POST http://127.0.0.1:8000/api/reset \
+    -H "Content-Type: application/json" \
+    -d '{"system_prompt":"test"}'
+```
 
 ### 8. Verify Audio Setup
 
@@ -409,6 +432,8 @@ Use the manager to:
 - [ ] Python virtual environment created and activated
 - [ ] All Python dependencies installed without errors
 - [ ] `config_secrets.py` configured with API credentials
+- [ ] LLM provider selected in `config.py` (`azure`, `ollama`, or `ax650`)
+- [ ] If using AX650, `:11434` generation and `:8000` runtime endpoints verified
 - [ ] Audio devices detected and working
 - [ ] GPIO permissions configured
 - [ ] System config check completed successfully

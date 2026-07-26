@@ -1,5 +1,6 @@
 import config
 from conversation_manager import conversation_setup, archive_conversation
+from llm_chat_completion import ax650_soft_reset_and_reassert_prompt
 from buttons.button_manager import ButtonManager
 from leds.led_manager import start_led, stop_led  # Import LED control functions
 from sound_effects.sound_effects import play_sound_effect  # Import sound effect function
@@ -42,6 +43,10 @@ def coyote_alive(stop_event):
                 if archived_file:
                     print(f"Conversation archived to: {archived_file}")
 
+                if config.LLM == "ax650":
+                    if not ax650_soft_reset_and_reassert_prompt():
+                        print("AX650 BOOM reset completed with errors.")
+
                 
                 # Start erratic pattern on both LEDs
                 led_thread1 = start_led(config.GPIO_LED_DYNAMITE, "erratic")
@@ -80,6 +85,10 @@ def main():
     """Start the transcriber process and coyote alive thread, and manage graceful shutdown."""
     # Play startup sound when coyote.py first starts
     play_sound_effect(config.STARTUP_SOUND)
+
+    if config.LLM == "ax650":
+        if not ax650_soft_reset_and_reassert_prompt():
+            print("AX650 startup reset completed with errors.")
     
     stop_event = threading.Event()
     business_thread = threading.Thread(target=coyote_alive, args=(stop_event,))

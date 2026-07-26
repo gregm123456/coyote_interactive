@@ -64,6 +64,6 @@ PERSON_PROMPT_END = "``` Please respond to your friend. Be brief and succinct, a
 PERSON_PROMPT_NO_TRANSCRIPT = "Ask a question of your friend who is watching television with you. You can ask about the product they just heard about, or anything else you'd like to know."
 
 # LLM configuration
-# azure or ollama
+# azure, ollama, or ax650
 # February 2026: we are using ollama! Agents should NOT change this.
-LLM = "ollama"
+LLM = "ax650"
