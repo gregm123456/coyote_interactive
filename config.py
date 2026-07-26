@@ -42,8 +42,9 @@ PERSON_MIC_NAME_MATCH = ""
 PERSON_MIC_MATCH_INDEX = 0
 
 # Audio output settings
-# If "default" fails with error 524, try "plughw:2,0" or "plughw:3,0"
-SPEAKER_DEVICE = "plughw:2,0"
+# If playback fails, prefer named devices like "plughw:CARD=Audio,DEV=0" or
+# "plughw:CARD=Audio_1,DEV=0" over numeric indices (which can change after reboot).
+SPEAKER_DEVICE = "plughw:CARD=Audio_1,DEV=0"
 
 # Conversation configuration
 CONVERSATION_DATA_PATH = "conversation_data"

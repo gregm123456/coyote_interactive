@@ -454,6 +454,32 @@ If microphones not detected:
 - Check PulseAudio: `pactl info`
 - Restart PulseAudio: `pulseaudio -k && pulseaudio --start`
 
+If startup sound plays but chat speech is silent after a reboot:
+- USB audio card assignment likely changed.
+- Check playback devices: `aplay -l`
+- Test candidate speaker devices by speaking each identifier via Piper:
+
+```bash
+cd ~/coyote_interactive
+MODEL=""
+for c in "${PIPER_MODEL_COYOTE:-}" "${PIPER_MODEL:-}" \
+    "/usr/share/piper/voices/en_GB/en_GB-vctk-medium.onnx" \
+    "/usr/share/piper/voices/en_GB/en_GB-alba-medium.onnx"; do
+    if [[ -n "$c" && -f "$c" ]]; then MODEL="$c"; break; fi
+done
+
+for dev in "plughw:CARD=Audio,DEV=0" "plughw:CARD=Audio_1,DEV=0"; do
+    echo "--- Testing $dev ---"
+    printf "This is device %s. This is device %s.\n" "$dev" "$dev" | \
+        piper --model "$MODEL" -s 71 --length_scale 1.4 --output-raw | \
+        sox -t raw -r 22050 -e signed -b 16 -c 1 - -t raw - pitch -200 vol 0.98 | \
+        aplay -D "$dev" -r 22050 -f S16_LE -t raw
+done
+```
+
+- Set `SPEAKER_DEVICE` in `config.py` to the device you actually heard.
+- Restart service: `systemctl --user restart coyote.service`
+
 ### Python Dependency Issues
 
 If pip install fails:

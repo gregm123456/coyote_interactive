@@ -357,6 +357,49 @@ This usually means the default ALSA device (often HDMI or Headphone jack) is not
 3. **Update Config:** Set `SPEAKER_DEVICE = "plughw:CARD_NUMBER,0"` in `config.py`.
    (e.g., `plughw:2,0` if your USB audio is Card 2).
 
+### Audio Device Reassigned After Reboot (startup sound works, chat TTS silent)
+
+**Symptom:**
+- Startup `meep` sound plays, but spoken chat responses are silent.
+- Logs may show configured speaker device failed, then fallback.
+
+**Why this happens:**
+- USB audio card indexes can change across reboots.
+- `SPEAKER_DEVICE` in `config.py` can point to an old card index/device.
+
+**Fast fix (2-3 minutes):**
+```bash
+cd ~/coyote_interactive
+
+# 1) See current playback devices
+aplay -l
+
+# 2) Test likely USB outputs by speaking the device name through each device
+MODEL=""
+for c in "${PIPER_MODEL_COYOTE:-}" "${PIPER_MODEL:-}" \
+   "/usr/share/piper/voices/en_GB/en_GB-vctk-medium.onnx" \
+   "/usr/share/piper/voices/en_GB/en_GB-alba-medium.onnx"; do
+   if [[ -n "$c" && -f "$c" ]]; then MODEL="$c"; break; fi
+done
+
+for dev in "plughw:CARD=Audio,DEV=0" "plughw:CARD=Audio_1,DEV=0"; do
+   echo "--- Testing $dev ---"
+   printf "This is device %s. This is device %s.\n" "$dev" "$dev" | \
+      piper --model "$MODEL" -s 71 --length_scale 1.4 --output-raw | \
+      sox -t raw -r 22050 -e signed -b 16 -c 1 - -t raw - pitch -200 vol 0.98 | \
+      aplay -D "$dev" -r 22050 -f S16_LE -t raw
+done
+
+# 3) Set SPEAKER_DEVICE in config.py to the one you actually heard
+# Example:
+# SPEAKER_DEVICE = "plughw:CARD=Audio_1,DEV=0"
+
+# 4) Restart service
+systemctl --user restart coyote.service
+```
+
+**Tip:** Prefer named devices (`CARD=Audio` / `CARD=Audio_1`) over numeric `plughw:2,0` style indexes. Named devices are usually more stable.
+
 ### Piper TTS No Output
 
 **Symptom:** Text-to-speech generates no audio

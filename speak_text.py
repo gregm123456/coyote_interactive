@@ -3,7 +3,22 @@ import re
 import tempfile
 import os
 import json
+import shlex
 from config import SPEAKER_DEVICE
+
+
+def _resolve_piper_model_path():
+    """Pick a usable Piper model path from env vars or common defaults."""
+    candidates = [
+        os.environ.get("PIPER_MODEL_COYOTE", "").strip(),
+        os.environ.get("PIPER_MODEL", "").strip(),
+        "/usr/share/piper/voices/en_GB/en_GB-vctk-medium.onnx",
+        "/usr/share/piper/voices/en_GB/en_GB-alba-medium.onnx",
+    ]
+    for path in candidates:
+        if path and os.path.exists(path):
+            return path
+    return ""
 
 
 def speak_text(text):
@@ -39,6 +54,9 @@ def speak_text(text):
     safe_text = re.sub(r'\$(\d+)', r'\1 dollars', safe_text)
 
     print("Speaking:", safe_text)
+    if not safe_text.strip():
+        print("Finished speaking:", safe_text)
+        return
     
     # Use a temporary file to avoid shell escaping issues with apostrophes
     # Add encoding='utf-8' to handle Unicode characters correctly
@@ -47,15 +65,31 @@ def speak_text(text):
         tmp_path = tmp.name
     
     try:
-        # Use the temporary file instead of echo
-        command = (
-            f"cat {tmp_path} | "
-            "piper --model $PIPER_MODEL_COYOTE -s 71 --length_scale 1.75 --output-raw | "
-            "sox -t raw -r 22050 -e signed -b 16 -c 1 - -t raw - pitch -200 vol 0.98 | "
-            f"aplay -D {SPEAKER_DEVICE} -r 22050 -f S16_LE -t raw"
+        model_path = _resolve_piper_model_path()
+        if not model_path:
+            print("Piper model not found. Set PIPER_MODEL_COYOTE or install voice models in /usr/share/piper/voices/en_GB/.")
+            return
+
+        base_pipeline = (
+            f"cat {shlex.quote(tmp_path)} | "
+            f"piper --model {shlex.quote(model_path)} -s 71 --length_scale 1.75 --output-raw | "
+            "sox -t raw -r 22050 -e signed -b 16 -c 1 - -t raw - pitch -200 vol 0.98"
         )
 
-        subprocess.run(command, shell=True)
+        if SPEAKER_DEVICE and SPEAKER_DEVICE.strip():
+            command = (
+                base_pipeline +
+                f" | aplay -D {shlex.quote(SPEAKER_DEVICE)} -r 22050 -f S16_LE -t raw"
+            )
+            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            if result.returncode != 0:
+                print(f"Configured speaker device '{SPEAKER_DEVICE}' failed; retrying default output.")
+                fallback_command = base_pipeline + " | aplay -r 22050 -f S16_LE -t raw"
+                subprocess.run(fallback_command, shell=True, check=False)
+        else:
+            command = base_pipeline + " | aplay -r 22050 -f S16_LE -t raw"
+            subprocess.run(command, shell=True, check=False)
+
         print("Finished speaking:", safe_text)
     finally:
         # Clean up the temporary file
