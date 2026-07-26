@@ -30,7 +30,7 @@ sudo apt install -y \
     byobu \
     alsa-utils \
     espeak-ng \
-    libgpiod2 python3-libgpiod \
+    libgpiod3 python3-libgpiod \
     dbus libdbus-1-dev libdbus-glib-1-dev \
     python3-dev pkg-config \
     ffmpeg \
@@ -42,7 +42,7 @@ sudo apt install -y \
 - `sox` - Sound eXchange, required for audio pitch shifting (creates the coyote voice character)
 - `espeak-ng` - Text-to-speech engine used by Piper
 - `pulseaudio` - Audio routing and management
-- `libgpiod2` - GPIO control library for buttons/LEDs
+- `libgpiod3` - GPIO control library for buttons/LEDs
 
 ### 3. Install Whisper.cpp (Audio Transcription)
 
