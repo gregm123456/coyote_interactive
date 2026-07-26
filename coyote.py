@@ -62,13 +62,18 @@ def coyote_alive(stop_event):
 
 
 def start_transcriber():
-    return subprocess.Popen([
+    command = [
         "python", "/home/gregm/coyote_interactive/audio_to_text/transcribe_continuously.py",
         "--log_file_path", config.TRANSCRIBE_LOG_FILE,
         "--whisper_model", config.TRANSCRIBE_WHISPER_MODEL,
         "--threads", config.TRANSCRIBE_THREADS,
         "--mic", config.TRANSCRIBE_MIC_NUMBER
-    ])
+    ]
+    mic_name = getattr(config, "TRANSCRIBE_MIC_NAME_MATCH", "")
+    mic_match_index = getattr(config, "TRANSCRIBE_MIC_MATCH_INDEX", 0)
+    if mic_name:
+        command.extend(["--mic_name", mic_name, "--mic_match_index", str(mic_match_index)])
+    return subprocess.Popen(command)
 
 
 def main():

@@ -1,17 +1,33 @@
 # Import dependencies
+import os
 from gpiozero import LED, PWMLED
 import threading
 import time
 import random
 
 
+def _patch_gpiozero_lgpio_backend():
+    """Work around gpiozero lgpio backend missing the os import in some builds."""
+    try:
+        import gpiozero.pins.lgpio as lgpio_backend
+    except Exception:
+        return
+    if not hasattr(lgpio_backend, "os"):
+        lgpio_backend.os = os
+
+
 # Worker function handling LED patterns
 def led_worker(gpio, pattern, stop_event):
+    _patch_gpiozero_lgpio_backend()
     # Choose LED type: use PWMLED for breathing, standard LED otherwise
-    if pattern == "breathing":
-        led = PWMLED(gpio)
-    else:
-        led = LED(gpio)
+    try:
+        if pattern == "breathing":
+            led = PWMLED(gpio)
+        else:
+            led = LED(gpio)
+    except Exception as exc:
+        print(f"Warning: LED on GPIO {gpio} unavailable: {exc}")
+        return
     # Process LED behavior until stop event is set
     while not stop_event.is_set():
         if pattern == "flashing":

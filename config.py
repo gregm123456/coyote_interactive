@@ -25,11 +25,21 @@ GPIO_LED_INTERCOM = 15
 TRANSCRIBE_LOG_FILE = "./audio_to_text/transcription.txt"
 TRANSCRIBE_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
 TRANSCRIBE_THREADS = "2"
-TRANSCRIBE_MIC_NUMBER = "3"
+TRANSCRIBE_MIC_NUMBER = "1"
+# Optional: set to a unique substring from `arecord -l` output to pick the TV mic.
+# When set, this takes priority over TRANSCRIBE_MIC_NUMBER.
+TRANSCRIBE_MIC_NAME_MATCH = ""
+# If TRANSCRIBE_MIC_NAME_MATCH matches multiple devices, use this zero-based match index.
+TRANSCRIBE_MIC_MATCH_INDEX = 0
 
 PERSON_WHISPER_MODEL = "/usr/share/whisper/models/ggml-base.en.bin"
-PERSON_MIC_NUMBER = "2"
+PERSON_MIC_NUMBER = "0"
 PERSON_THREADS = "2"
+# Optional: set to a unique substring from `arecord -l` output to pick the intercom mic.
+# When set, this takes priority over PERSON_MIC_NUMBER.
+PERSON_MIC_NAME_MATCH = ""
+# If PERSON_MIC_NAME_MATCH matches multiple devices, use this zero-based match index.
+PERSON_MIC_MATCH_INDEX = 0
 
 # Audio output settings
 # If "default" fails with error 524, try "plughw:2,0" or "plughw:3,0"

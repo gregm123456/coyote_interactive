@@ -4,6 +4,7 @@ import os
 from llm_chat_completion import llm_chat_completion
 from speak_text import speak_text
 from leds.led_manager import start_led, stop_led
+from audio_to_text.audio_device import resolve_capture_device
 
 # Global configuration variables
 led_intercom = config.GPIO_LED_INTERCOM
@@ -18,6 +19,8 @@ conversation_file = os.path.join(config.CONVERSATION_DATA_PATH, config.CONVERSAT
 whisper_model = config.PERSON_WHISPER_MODEL
 threads = config.PERSON_THREADS
 mic = config.PERSON_MIC_NUMBER
+person_mic_name_match = getattr(config, "PERSON_MIC_NAME_MATCH", "")
+person_mic_match_index = getattr(config, "PERSON_MIC_MATCH_INDEX", 0)
 
 
 def build_prompt_and_update_conversation(person_comment):
@@ -96,7 +99,7 @@ def capture_intercom_speech(bm=None):
         '-m', whisper_model,
         '--step', '4500',
         '--length', '5000',
-        '-c', mic,
+        '-c', resolve_capture_device(mic, person_mic_name_match, person_mic_match_index),
         '-t', threads,
         '-ac', '512',
         '--keep', '85',
