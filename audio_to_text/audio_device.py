@@ -79,6 +79,7 @@ def resolve_capture_device(preferred, preferred_name="", preferred_name_match_in
         match_index = 0
 
     devices = _capture_device_details()
+    available_cards = [dev["card"] for dev in devices]
     if preferred_name:
         needle = preferred_name.lower().strip()
         matches = []
@@ -87,11 +88,21 @@ def resolve_capture_device(preferred, preferred_name="", preferred_name_match_in
                 matches.append(dev)
         if matches:
             selected = matches[min(match_index, len(matches) - 1)]
-            return str(selected["card"])
+            selected_card = selected["card"]
+            try:
+                return str(available_cards.index(selected_card))
+            except ValueError:
+                return "0"
 
-    available = sorted({dev["card"] for dev in devices}) if devices else _available_capture_devices()
-    if not available:
+    if not available_cards:
         return str(preferred_index if preferred_index >= 0 else 0)
-    if preferred_index in available:
+
+    # Preferred index is interpreted as whisper-stream capture index first.
+    if 0 <= preferred_index < len(available_cards):
         return str(preferred_index)
-    return str(available[0])
+
+    # If a literal ALSA card ID was provided, map it to whisper-stream index.
+    if preferred_index in available_cards:
+        return str(available_cards.index(preferred_index))
+
+    return "0"
