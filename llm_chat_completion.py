@@ -61,13 +61,13 @@ def chat_completion_ollama(conversation_file):
 
     payload = {
         "model": config.OLLAMA_MODEL,
+        "think": False,
         "keep_alive": config.OLLAMA_KEEP_ALIVE,
         "stream": False,
         "options": {
             "temperature": config.OLLAMA_TEMPERATURE,
             "top_k": config.OLLAMA_TOP_K,
             "top_p": config.OLLAMA_TOP_P,
-            "num_ctx": config.OLLAMA_NUM_CTX,
             "repeat_last_n": config.OLLAMA_REPEAT_LAST_N,
             "repeat_penalty": config.OLLAMA_REPEAT_PENALTY,
             "num_predict": config.OLLAMA_NUM_PREDICT,
