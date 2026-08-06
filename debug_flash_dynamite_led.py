@@ -2,11 +2,21 @@
 """Simple hardware test: flash GPIO_LED_DYNAMITE repeatedly."""
 
 import argparse
+import os
 import time
 
 from gpiozero import LED
 
 import config
+
+
+def _patch_gpiozero_lgpio_backend():
+    try:
+        import gpiozero.pins.lgpio as lgpio_backend
+    except Exception:
+        return
+    if not hasattr(lgpio_backend, "os"):
+        lgpio_backend.os = os
 
 
 def parse_args():
@@ -36,6 +46,7 @@ def parse_args():
 
 def main():
     args = parse_args()
+    _patch_gpiozero_lgpio_backend()
     pin = config.GPIO_LED_DYNAMITE
     led = LED(pin)
 
